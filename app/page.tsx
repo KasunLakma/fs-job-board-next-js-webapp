@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import JobListings from "./components/JobListings";
+import { jobsData } from "../data/jobs";
 
 export default function Home() {
   return (
@@ -72,6 +74,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Recent Jobs Listings */}
+      <JobListings jobs={jobsData} />
 
       {/* Call to Action */}
       <section className="w-full bg-primary text-primary-foreground py-16 md:py-24">
