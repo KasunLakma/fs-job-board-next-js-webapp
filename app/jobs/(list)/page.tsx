@@ -1,7 +1,7 @@
 import { getJobs, getJobFilters } from "@/lib/jobs";
-import JobCard from "../components/JobCard";
-import JobFilters from "../components/JobFilters";
-import Pagination from "../components/Pagination";
+import JobCard from "../../components/JobCard";
+import JobFilters from "../../components/JobFilters";
+import Pagination from "../../components/Pagination";
 
 export const metadata = {
   title: "Search Jobs | CCA Job Board",
