@@ -9,9 +9,8 @@ export interface Job {
   salary: string;
 }
 
-export const jobsData: Job[] = [
+const rawJobs: Omit<Job, 'id'>[] = [
   {
-    id: "1",
     title: "Frontend Developer Intern",
     company: "TechNova",
     location: "Remote",
@@ -21,7 +20,6 @@ export const jobsData: Job[] = [
     salary: "$3,000/mo",
   },
   {
-    id: "2",
     title: "Junior Backend Engineer",
     company: "DataStream Systems",
     location: "New York, NY",
@@ -31,7 +29,6 @@ export const jobsData: Job[] = [
     salary: "$85,000 - $105,000",
   },
   {
-    id: "3",
     title: "Full Stack Software Engineer",
     company: "CloudScale",
     location: "San Francisco, CA",
@@ -41,7 +38,6 @@ export const jobsData: Job[] = [
     salary: "$110,000 - $130,000",
   },
   {
-    id: "4",
     title: "Data Science Intern",
     company: "AI Innovations",
     location: "Boston, MA",
@@ -51,7 +47,6 @@ export const jobsData: Job[] = [
     salary: "$4,000/mo",
   },
   {
-    id: "5",
     title: "React Developer",
     company: "WebWorks",
     location: "Remote",
@@ -61,7 +56,6 @@ export const jobsData: Job[] = [
     salary: "$60/hr",
   },
   {
-    id: "6",
     title: "Entry Level Node.js Developer",
     company: "ServerLogic",
     location: "Austin, TX",
@@ -71,7 +65,6 @@ export const jobsData: Job[] = [
     salary: "$75,000 - $90,000",
   },
   {
-    id: "7",
     title: "Mobile App Developer Intern",
     company: "AppStudio",
     location: "Remote",
@@ -81,7 +74,6 @@ export const jobsData: Job[] = [
     salary: "$2,500/mo",
   },
   {
-    id: "8",
     title: "DevOps Engineer (Junior)",
     company: "Infrastructure Inc",
     location: "Seattle, WA",
@@ -91,7 +83,6 @@ export const jobsData: Job[] = [
     salary: "$95,000 - $115,000",
   },
   {
-    id: "9",
     title: "Software Engineer in Test",
     company: "QualityFirst",
     location: "Chicago, IL",
@@ -101,7 +92,6 @@ export const jobsData: Job[] = [
     salary: "$80,000 - $100,000",
   },
   {
-    id: "10",
     title: "Machine Learning Intern",
     company: "Visionary AI",
     location: "Remote",
@@ -111,7 +101,6 @@ export const jobsData: Job[] = [
     salary: "$5,000/mo",
   },
   {
-    id: "11",
     title: "Vue.js Frontend Engineer",
     company: "Creative Digital",
     location: "Denver, CO",
@@ -121,7 +110,6 @@ export const jobsData: Job[] = [
     salary: "$90,000 - $110,000",
   },
   {
-    id: "12",
     title: "Backend API Developer",
     company: "Connective",
     location: "Remote",
@@ -131,7 +119,6 @@ export const jobsData: Job[] = [
     salary: "$55/hr",
   },
   {
-    id: "13",
     title: "UI/UX Developer Intern",
     company: "Design Systems",
     location: "Los Angeles, CA",
@@ -141,7 +128,6 @@ export const jobsData: Job[] = [
     salary: "$3,500/mo",
   },
   {
-    id: "14",
     title: "Security Analyst (Entry)",
     company: "CyberDefend",
     location: "Washington, D.C.",
@@ -151,7 +137,6 @@ export const jobsData: Job[] = [
     salary: "$85,000 - $100,000",
   },
   {
-    id: "15",
     title: "Cloud Infrastructure Engineer",
     company: "SkyNet Services",
     location: "Remote",
@@ -161,3 +146,29 @@ export const jobsData: Job[] = [
     salary: "$105,000 - $125,000",
   }
 ];
+
+function generateSlug(title: string, company: string, existingIds: Set<string>): string {
+  const baseSlug = `${title}-${company}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphens
+    .replace(/(^-|-$)/g, '');    // Remove leading/trailing hyphens
+    
+  let slug = baseSlug;
+  let counter = 1;
+  
+  // Handle duplicates by appending an incremental number
+  while (existingIds.has(slug)) {
+    slug = `${baseSlug}-${counter}`;
+    counter++;
+  }
+  
+  existingIds.add(slug);
+  return slug;
+}
+
+const existingIds = new Set<string>();
+
+export const jobsData: Job[] = rawJobs.map((job) => ({
+  ...job,
+  id: generateSlug(job.title, job.company, existingIds),
+}));
