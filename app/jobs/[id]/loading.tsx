@@ -28,15 +28,29 @@ export default function JobDetailsLoading() {
             </div>
 
             <div className="space-y-8">
-              {[1, 2, 3].map((section) => (
+              {/* About Role Skeleton */}
+              <section>
+                <div className="mb-4 h-7 w-48 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                <div className="space-y-3">
+                  <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                  <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                  <div className="h-4 w-5/6 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                  <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                  <div className="h-4 w-4/5 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                </div>
+              </section>
+
+              {/* Responsibilities & Requirements Skeletons */}
+              {[1, 2].map((section) => (
                 <section key={section}>
-                  <div className="mb-4 h-7 w-48 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                  <div className="mb-4 h-7 w-56 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
                   <div className="space-y-3">
-                    <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
-                    <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
-                    <div className="h-4 w-5/6 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
-                    <div className="h-4 w-full animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
-                    <div className="h-4 w-4/5 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800"></div>
+                    {[1, 2, 3, 4, 5].map((item) => (
+                      <div key={item} className="flex items-center gap-3">
+                        <div className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-gray-300 dark:bg-gray-700"></div>
+                        <div className={`h-4 animate-pulse rounded-md bg-gray-200 dark:bg-gray-800 ${item % 2 === 0 ? 'w-5/6' : 'w-full'}`}></div>
+                      </div>
+                    ))}
                   </div>
                 </section>
               ))}
