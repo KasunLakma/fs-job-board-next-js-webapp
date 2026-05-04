@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import JobListings from "./components/JobListings";
-import { jobsData } from "../data/jobs";
+import { getJobs } from "../lib/jobs";
 
-export default function Home() {
+export default async function Home() {
+  const { jobs: featuredJobs } = await getJobs({ limit: 6 });
+
   return (
     <div className="flex flex-col items-center w-full">
       {/* Hero Section */}
@@ -76,7 +78,7 @@ export default function Home() {
       </section>
 
       {/* Recent Jobs Listings */}
-      <JobListings jobs={jobsData} />
+      <JobListings jobs={featuredJobs} />
 
       {/* Call to Action */}
       <section className="w-full bg-primary text-primary-foreground py-16 md:py-24">

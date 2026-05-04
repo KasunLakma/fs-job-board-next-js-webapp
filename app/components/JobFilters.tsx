@@ -3,7 +3,13 @@
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 
-function JobFiltersContent() {
+interface JobFiltersProps {
+  locations?: string[];
+  types?: string[];
+  categories?: string[];
+}
+
+function JobFiltersContent({ locations = [], types = [], categories = [] }: JobFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -71,16 +77,9 @@ function JobFiltersContent() {
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900"
         >
           <option value="">Any Location</option>
-          <option value="Remote">Remote</option>
-          <option value="New York, NY">New York, NY</option>
-          <option value="San Francisco, CA">San Francisco, CA</option>
-          <option value="Boston, MA">Boston, MA</option>
-          <option value="Austin, TX">Austin, TX</option>
-          <option value="Seattle, WA">Seattle, WA</option>
-          <option value="Chicago, IL">Chicago, IL</option>
-          <option value="Denver, CO">Denver, CO</option>
-          <option value="Los Angeles, CA">Los Angeles, CA</option>
-          <option value="Washington, D.C.">Washington, D.C.</option>
+          {locations.map((loc) => (
+            <option key={loc} value={loc}>{loc}</option>
+          ))}
         </select>
       </div>
 
@@ -96,10 +95,9 @@ function JobFiltersContent() {
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900"
         >
           <option value="">Any Type</option>
-          <option value="Full-time">Full-time</option>
-          <option value="Part-time">Part-time</option>
-          <option value="Internship">Internship</option>
-          <option value="Contract">Contract</option>
+          {types.map((t) => (
+            <option key={t} value={t}>{t}</option>
+          ))}
         </select>
       </div>
 
@@ -115,14 +113,9 @@ function JobFiltersContent() {
           className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900"
         >
           <option value="">Any Category</option>
-          <option value="Frontend">Frontend</option>
-          <option value="Backend">Backend</option>
-          <option value="Full Stack">Full Stack</option>
-          <option value="Data Science">Data Science</option>
-          <option value="Mobile">Mobile</option>
-          <option value="DevOps">DevOps</option>
-          <option value="QA">QA</option>
-          <option value="Security">Security</option>
+          {categories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
       </div>
 
@@ -144,12 +137,12 @@ function JobFiltersContent() {
   );
 }
 
-export default function JobFilters() {
+export default function JobFilters(props: JobFiltersProps) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-950">
       <h2 className="mb-4 text-lg font-bold">Filter Jobs</h2>
       <Suspense fallback={<div className="h-64 animate-pulse bg-gray-100 dark:bg-gray-900 rounded-md"></div>}>
-        <JobFiltersContent />
+        <JobFiltersContent {...props} />
       </Suspense>
     </div>
   );

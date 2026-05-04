@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { jobsData } from "../../../data/jobs";
+import { getJobById } from "../../../lib/jobs";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const job = jobsData.find((j) => j.id === id);
+  const job = await getJobById(id);
   if (!job) return { title: "Job Not Found | CCA Job Board" };
   
   return {
@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function JobDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const job = jobsData.find((j) => j.id === id);
+  const job = await getJobById(id);
 
   if (!job) {
     notFound();

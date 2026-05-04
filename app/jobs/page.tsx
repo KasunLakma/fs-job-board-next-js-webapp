@@ -1,4 +1,4 @@
-import { jobsData } from "../../data/jobs";
+import { getJobs, getJobFilters } from "@/lib/jobs";
 import JobCard from "../components/JobCard";
 import JobFilters from "../components/JobFilters";
 import Pagination from "../components/Pagination";
@@ -8,8 +8,6 @@ export const metadata = {
   description: "Find the best software and technology jobs for students.",
 };
 
-const JOBS_PER_PAGE = 6;
-
 export default async function JobsPage({
   searchParams,
 }: {
@@ -17,30 +15,22 @@ export default async function JobsPage({
 }) {
   const resolvedParams = await searchParams;
   
-  const q = typeof resolvedParams.q === "string" ? resolvedParams.q.toLowerCase() : "";
-  const location = typeof resolvedParams.location === "string" ? resolvedParams.location : "";
-  const type = typeof resolvedParams.type === "string" ? resolvedParams.type : "";
-  const category = typeof resolvedParams.category === "string" ? resolvedParams.category : "";
+  const q = typeof resolvedParams.q === "string" ? resolvedParams.q : undefined;
+  const location = typeof resolvedParams.location === "string" ? resolvedParams.location : undefined;
+  const type = typeof resolvedParams.type === "string" ? resolvedParams.type : undefined;
+  const category = typeof resolvedParams.category === "string" ? resolvedParams.category : undefined;
   
   const pageParam = typeof resolvedParams.page === "string" ? parseInt(resolvedParams.page, 10) : 1;
-  const currentPage = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
+  const page = isNaN(pageParam) || pageParam < 1 ? 1 : pageParam;
 
-  // Filter logic
-  const filteredJobs = jobsData.filter((job) => {
-    const matchesSearch = !q || 
-      job.title.toLowerCase().includes(q) || 
-      job.company.toLowerCase().includes(q);
-      
-    const matchesLocation = !location || job.location === location;
-    const matchesType = !type || job.type === type;
-    const matchesCategory = !category || job.category === category;
-    
-    return matchesSearch && matchesLocation && matchesType && matchesCategory;
-  });
-
-  const totalPages = Math.ceil(filteredJobs.length / JOBS_PER_PAGE);
-  const startIndex = (currentPage - 1) * JOBS_PER_PAGE;
-  const paginatedJobs = filteredJobs.slice(startIndex, startIndex + JOBS_PER_PAGE);
+  // Fetch jobs and filters in parallel for optimal performance
+  const [
+    { jobs: paginatedJobs, total, totalPages, currentPage },
+    { locations, types, categories }
+  ] = await Promise.all([
+    getJobs({ q, location, type, category, page, limit: 6 }),
+    getJobFilters()
+  ]);
 
   return (
     <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
@@ -55,7 +45,7 @@ export default async function JobsPage({
         {/* Sidebar Filters */}
         <aside className="lg:col-span-1">
           <div className="sticky top-24">
-            <JobFilters />
+            <JobFilters locations={locations} types={types} categories={categories} />
           </div>
         </aside>
 
@@ -63,7 +53,7 @@ export default async function JobsPage({
         <div className="lg:col-span-3">
           <div className="mb-4 flex items-center justify-between">
             <p className="text-sm font-medium text-gray-500 dark:text-gray-400">
-              Showing <span className="font-bold text-foreground">{paginatedJobs.length}</span> of <span className="font-bold text-foreground">{filteredJobs.length}</span> jobs
+              Showing <span className="font-bold text-foreground">{paginatedJobs.length}</span> of <span className="font-bold text-foreground">{total}</span> jobs
             </p>
           </div>
 
