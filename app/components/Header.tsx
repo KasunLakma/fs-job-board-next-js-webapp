@@ -14,12 +14,6 @@ export default function Header() {
           <Link href="/jobs" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
             Find Jobs
           </Link>
-          <Link href="/companies" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-            Companies
-          </Link>
-          <Link href="/resources" className="text-sm font-medium text-foreground hover:text-primary transition-colors">
-            Resources
-          </Link>
         </nav>
         <div className="flex items-center gap-4">
           <Link href="/employers" className="hidden text-sm font-medium text-foreground hover:text-primary transition-colors md:block">
