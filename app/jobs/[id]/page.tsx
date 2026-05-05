@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getJobById } from "../../../lib/jobs";
+import ApplyJobModal from "../../components/ApplyJobModal";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -118,9 +119,7 @@ export default async function JobDetailsPage({ params }: { params: Promise<{ id:
             </p>
             
             <div className="space-y-4">
-              <button className="w-full rounded-md bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary/90 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-gray-950">
-                Apply Now
-              </button>
+              <ApplyJobModal jobId={job.id} jobTitle={job.title} company={job.company} />
               <button className="w-full rounded-md border border-gray-300 bg-white px-4 py-3 text-sm font-bold text-foreground transition-all hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-800 dark:focus:ring-offset-gray-950">
                 Save for Later
               </button>
