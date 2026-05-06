@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  slug        String   @unique // URL-friendly identifier (e.g., 'frontend-developer-technova')
+  title       String
+  company     String
+  location    String
+  type        String
+  category    String
+  salary      String
+  
+  // Timestamps
+  postedAt    String // Keeping string to match "2 days ago" format from dummy data for now
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([slug])
+}
