@@ -32,25 +32,43 @@ export async function POST(
 
     const formData = await request.formData();
     
-    // Extract data from formData
+    // Extract data from formData with explicit typing and fallbacks
     const data = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      phone: formData.get("phone") as string || undefined,
-      linkedin: formData.get("linkedin") as string || undefined,
-      portfolio: formData.get("portfolio") as string || undefined,
-      coverLetter: formData.get("coverLetter") as string || undefined,
+      name: formData.get("name")?.toString() || "",
+      email: formData.get("email")?.toString() || "",
+      phone: formData.get("phone")?.toString() || undefined,
+      linkedin: formData.get("linkedin")?.toString() || undefined,
+      portfolio: formData.get("portfolio")?.toString() || undefined,
+      coverLetter: formData.get("coverLetter")?.toString() || undefined,
     };
 
-    // Validate data
+    // Validate data using safeParse
     const validation = applicationSchema.safeParse(data);
+    
+    // Robustly handle validation failure
     if (!validation.success) {
-      const errorMessages = validation.error.issues.map(err => err.message).join(", ");
+      // Use flatten() to get a cleaner error structure as requested
+      const flattenedErrors = validation.error.flatten();
+      
+      // Create a readable error message from field errors
+      const fieldErrors = flattenedErrors.fieldErrors;
+      const errorMessages = Object.entries(fieldErrors)
+        .map(([field, messages]) => `${field}: ${messages?.join(", ")}`)
+        .join("; ");
+
       return NextResponse.json(
-        { error: errorMessages },
+        { 
+          error: "Validation failed", 
+          details: fieldErrors,
+          message: errorMessages
+        },
         { status: 400 }
       );
     }
+
+    // After the check above, TypeScript knows validation.success is true
+    // and validation.data contains the parsed, typed data.
+    const validatedData = validation.data;
 
     const resume = formData.get("resume") as File | null;
     if (!resume || resume.size === 0) {
@@ -60,14 +78,18 @@ export async function POST(
       );
     }
 
-    // In a production environment, we would upload the file to S3/Cloudinary/etc.
-    // For now, we'll store the filename or a placeholder URL.
+    // Placeholder for actual file upload logic
     const resumeUrl = `uploads/resumes/${Date.now()}-${resume.name}`;
 
-    // Save to database
+    // Save to database using the UUID from the found job record
     const application = await prisma.application.create({
       data: {
-        ...validation.data,
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone,
+        linkedin: validatedData.linkedin,
+        portfolio: validatedData.portfolio,
+        coverLetter: validatedData.coverLetter,
         resumeUrl,
         jobId: job.id,
       },
