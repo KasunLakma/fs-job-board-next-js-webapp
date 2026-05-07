@@ -16,7 +16,7 @@ export default function SummaryCard({ title, value, icon, description, trend }: 
     <div className="group relative overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50 p-6 shadow-xl transition-all hover:border-primary/50 hover:bg-gray-900 hover:shadow-primary/5">
       <div className="flex items-center justify-between">
         <div className="relative z-10">
-          <p className="text-sm font-medium text-gray-900">{title}</p>
+          <p className="text-sm font-medium text-gray-400">{title}</p>
           <h3 className="mt-1 text-4xl font-bold tracking-tight text-white">{value}</h3>
           
           {description && (
