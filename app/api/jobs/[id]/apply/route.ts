@@ -1,50 +1,90 @@
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { z } from "zod";
+
+const applicationSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().optional(),
+  linkedin: z.string().url("Invalid LinkedIn URL").optional().or(z.literal("")),
+  portfolio: z.string().url("Invalid Portfolio URL").optional().or(z.literal("")),
+  coverLetter: z.string().optional(),
+});
 
 export async function POST(
- request: Request,
- { params }: { params: Promise<{ id: string }> }
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
 ) {
- try {
- const { id } = await params;
- const formData = await request.formData();
+  try {
+    const { id: jobIdOrSlug } = await params;
+    
+    // Check if job exists - jobIdOrSlug from URL is actually the slug
+    const job = await prisma.job.findUnique({
+      where: { slug: jobIdOrSlug },
+    });
 
- // Basic server-side validation
- const name = formData.get("name");
- const email = formData.get("email");
- const resume = formData.get("resume") as File | null;
+    if (!job) {
+      return NextResponse.json(
+        { error: "Job not found." },
+        { status: 404 }
+      );
+    }
 
- if (!name || !email) {
- return NextResponse.json(
- { error: "Name and email are required fields." },
- { status: 400 }
- );
- }
+    const formData = await request.formData();
+    
+    // Extract data from formData
+    const data = {
+      name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      phone: formData.get("phone") as string || undefined,
+      linkedin: formData.get("linkedin") as string || undefined,
+      portfolio: formData.get("portfolio") as string || undefined,
+      coverLetter: formData.get("coverLetter") as string || undefined,
+    };
 
- if (!resume || resume.size === 0) {
- return NextResponse.json(
- { error: "A valid resume file is required." },
- { status: 400 }
- );
- }
+    // Validate data
+    const validation = applicationSchema.safeParse(data);
+    if (!validation.success) {
+      const errorMessages = validation.error.errors.map(err => err.message).join(", ");
+      return NextResponse.json(
+        { error: errorMessages },
+        { status: 400 }
+      );
+    }
 
- // Simulate backend processing latency
- await new Promise((resolve) => setTimeout(resolve, 1500));
+    const resume = formData.get("resume") as File | null;
+    if (!resume || resume.size === 0) {
+      return NextResponse.json(
+        { error: "A valid resume file is required." },
+        { status: 400 }
+      );
+    }
 
- // In a real application, you would:
- // 1. Upload the file to S3 or similar cloud storage
- // 2. Save the application details to the database, referencing the jobId
- // 3. Send a confirmation email to the applicant
- // 4. Send a notification to the employer
+    // In a production environment, we would upload the file to S3/Cloudinary/etc.
+    // For now, we'll store the filename or a placeholder URL.
+    const resumeUrl = `uploads/resumes/${Date.now()}-${resume.name}`;
 
- return NextResponse.json(
- { message: "Application submitted successfully." },
- { status: 200 }
- );
- } catch (error) {
- console.error("Application submission error:", error);
- return NextResponse.json(
- { error: "An unexpected error occurred while processing your application." },
- { status: 500 }
- );
- }
+    // Save to database
+    const application = await prisma.application.create({
+      data: {
+        ...validation.data,
+        resumeUrl,
+        jobId: job.id,
+      },
+    });
+
+    return NextResponse.json(
+      { 
+        message: "Application submitted successfully.",
+        applicationId: application.id 
+      },
+      { status: 201 }
+    );
+  } catch (error) {
+    console.error("Application submission error:", error);
+    return NextResponse.json(
+      { error: "An unexpected error occurred while processing your application." },
+      { status: 500 }
+    );
+  }
 }

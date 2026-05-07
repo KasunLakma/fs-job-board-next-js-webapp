@@ -22,5 +22,21 @@ model Job {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
+  applications Application[]
+
   @@index([slug])
+}
+
+model Application {
+  id           String   @id @default(uuid())
+  name         String
+  email        String
+  phone        String?
+  linkedin     String?
+  portfolio    String?
+  resumeUrl    String
+  coverLetter  String?
+  jobId        String
+  job          Job      @relation(fields: [jobId], references: [id])
+  createdAt    DateTime @default(now())
 }
