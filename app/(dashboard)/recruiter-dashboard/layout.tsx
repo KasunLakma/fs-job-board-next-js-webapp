@@ -1,4 +1,4 @@
-import { ThemeProvider } from "../components/ThemeProvider";
+import { ThemeProvider } from "../../components/ThemeProvider";
 
 export default function RecruiterDashboardLayout({
   children,

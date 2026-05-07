@@ -5,13 +5,26 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export function ThemeToggle() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
+
+  // Console log for debugging state changes
+  React.useEffect(() => {
+    console.log("Current theme:", theme);
+  }, [theme]);
 
   // Avoid hydration mismatch
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  const toggleTheme = () => {
+    if (theme === 'dark') {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
+  };
 
   if (!mounted) {
     return (
@@ -21,7 +34,8 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+      onClick={toggleTheme}
+
 
       className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900 transition-all hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:bg-gray-900 group"
       aria-label="Toggle theme"

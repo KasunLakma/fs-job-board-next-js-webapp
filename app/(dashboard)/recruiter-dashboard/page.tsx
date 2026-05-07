@@ -1,9 +1,9 @@
 import prisma from "@/lib/prisma";
-import DashboardNav from "../components/DashboardNav";
-import SummaryCard from "../components/SummaryCard";
+import DashboardNav from "../../components/DashboardNav";
+import SummaryCard from "../../components/SummaryCard";
 import Link from "next/link";
 import Image from "next/image";
-import ClientOnly from "../components/ClientOnly";
+import ClientOnly from "../../components/ClientOnly";
 
 export const metadata = {
   title: "Recruiter Dashboard | CCA Job Board",
