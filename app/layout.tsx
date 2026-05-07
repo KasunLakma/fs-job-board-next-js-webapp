@@ -12,8 +12,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-import { ThemeProvider } from "./components/ThemeProvider";
-
 export const metadata: Metadata = {
   title: "Job Board for Students in the Software Field",
   description: "A job board for students in the software field",
@@ -30,15 +28,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col transition-colors duration-300">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="dark"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+
+      <body className="min-h-full flex flex-col">
+        {children}
       </body>
     </html>
   );

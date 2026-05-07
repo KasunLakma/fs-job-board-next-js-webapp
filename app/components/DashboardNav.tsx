@@ -42,7 +42,7 @@ export default function DashboardNav() {
   }
 
   return (
-    <nav className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+    <nav className={`sticky top-0 z-50 w-full transition-theme ${
       scrolled 
         ? 'border-b border-gray-200 bg-white/80 dark:border-gray-800 dark:bg-gray-950/80 backdrop-blur-xl' 
         : 'bg-transparent'
