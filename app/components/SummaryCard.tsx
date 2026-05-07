@@ -13,19 +13,19 @@ interface SummaryCardProps {
 
 export default function SummaryCard({ title, value, icon, description, trend }: SummaryCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50 p-6 shadow-xl transition-all hover:border-primary/50 hover:bg-gray-900 hover:shadow-primary/5">
+    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900/50 p-6 shadow-xl transition-all hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-gray-900 hover:shadow-primary/5">
       <div className="flex items-center justify-between">
         <div className="relative z-10">
-          <p className="text-sm font-medium text-gray-400">{title}</p>
-          <h3 className="mt-1 text-4xl font-bold tracking-tight text-white">{value}</h3>
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+          <h3 className="mt-1 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">{value}</h3>
           
           {description && (
-            <p className="mt-2 text-xs text-gray-500">{description}</p>
+            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">{description}</p>
           )}
           
           {trend && (
-            <div className={`mt-3 flex items-center text-xs font-medium ${trend.isPositive ? 'text-green-400' : 'text-red-400'}`}>
-              <div className={`mr-1.5 flex h-4 w-4 items-center justify-center rounded-full ${trend.isPositive ? 'bg-green-400/10' : 'bg-red-400/10'}`}>
+            <div className={`mt-3 flex items-center text-xs font-medium ${trend.isPositive ? 'text-emerald-500 dark:text-green-400' : 'text-rose-500 dark:text-red-400'}`}>
+              <div className={`mr-1.5 flex h-4 w-4 items-center justify-center rounded-full ${trend.isPositive ? 'bg-emerald-500/10 dark:bg-green-400/10' : 'bg-rose-500/10 dark:bg-red-400/10'}`}>
                 {trend.isPositive ? (
                   <svg className="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -36,7 +36,7 @@ export default function SummaryCard({ title, value, icon, description, trend }: 
                   </svg>
                 )}
               </div>
-              {trend.value} <span className="ml-1 text-gray-500 font-normal">vs last month</span>
+              {trend.value} <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">vs last month</span>
             </div>
           )}
         </div>
