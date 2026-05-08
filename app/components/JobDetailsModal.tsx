@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Briefcase, DollarSign, Calendar, Tag, CheckCircle2, ChevronRight, ListChecks, Award, Info } from "lucide-react";
+import { X, MapPin, Briefcase, DollarSign, Calendar, Tag, CheckCircle2, ChevronRight, ListChecks, Award, Info, Globe, Trophy } from "lucide-react";
 
 interface JobDetailsModalProps {
   isOpen: boolean;
@@ -21,6 +21,9 @@ interface JobDetailsModalProps {
     skills: string[];
     responsibilities: string[];
     requirements: string[];
+    workArrangement?: string;
+    experienceLevel?: string;
+    currency?: string;
   } | null;
 }
 
@@ -43,9 +46,9 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
 
   const modalContent = (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-card text-foreground rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl border border-border animate-in zoom-in-95 duration-200 overflow-hidden">
+      <div className="bg-card text-foreground rounded-3xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl border border-border animate-in zoom-in-95 duration-200 overflow-hidden">
         
-        {/* Header - Restored with Title and Company */}
+        {/* Header */}
         <div className="flex items-center justify-between p-6 sm:p-8 border-b border-border bg-card/50 shrink-0">
           <div>
             <div className="flex items-center gap-2 mb-2">
@@ -60,7 +63,7 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
                 ID: {job.id.substring(0, 8)}
               </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight leading-tight">{job.title}</h1>
+            <h1 className="text-2xl sm:text-4xl font-black text-foreground tracking-tight leading-tight">{job.title}</h1>
             <p className="text-lg font-bold text-primary flex items-center gap-2 mt-1">
               {job.company}
               <span className="h-1.5 w-1.5 rounded-full bg-foreground/20"></span>
@@ -79,11 +82,13 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
         {/* Body */}
         <div className="overflow-y-auto p-6 sm:p-10 flex-1 custom-scrollbar space-y-12">
           
-          {/* Info Cards Section - Restored and Combined */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Detailed Info Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4">
             {[
               { label: "Salary", value: job.salary, icon: <DollarSign size={18} />, color: "text-emerald-500", bg: "bg-emerald-500/10" },
               { label: "Type", value: job.type, icon: <Briefcase size={18} />, color: "text-amber-500", bg: "bg-amber-500/10" },
+              { label: "Level", value: job.experienceLevel || "Mid Level", icon: <Trophy size={18} />, color: "text-indigo-500", bg: "bg-indigo-500/10" },
+              { label: "Format", value: job.workArrangement || "Remote", icon: <Globe size={18} />, color: "text-cyan-500", bg: "bg-cyan-500/10" },
               { label: "Category", value: job.category, icon: <Tag size={18} />, color: "text-blue-500", bg: "bg-blue-500/10" },
               { label: "Posted", value: job.postedAt, icon: <Calendar size={18} />, color: "text-primary", bg: "bg-primary/10" },
             ].map((item) => (
@@ -92,12 +97,11 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
                   {item.icon}
                 </div>
                 <p className="text-[10px] uppercase tracking-wider text-foreground/40 font-black">{item.label}</p>
-                <p className="font-bold text-foreground text-sm truncate">{item.value}</p>
+                <p className="font-bold text-foreground text-xs truncate">{item.value}</p>
               </div>
             ))}
           </div>
 
-          {/* New Description Sections */}
           <div className="space-y-12">
             {/* About This Role */}
             <section className="space-y-4">
@@ -105,8 +109,8 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
                 <Info className="text-primary" size={22} />
                 About This Role
               </h3>
-              <p className="text-foreground/70 leading-relaxed text-lg italic">
-                "{job.description}"
+              <p className="text-foreground/70 leading-relaxed text-lg whitespace-pre-wrap">
+                {job.description}
               </p>
             </section>
 
@@ -132,7 +136,7 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
               <section className="space-y-4">
                 <h3 className="text-xl font-black text-foreground flex items-center gap-3">
                   <ChevronRight className="text-primary" size={22} />
-                  Responsibilities
+                  Key Responsibilities
                 </h3>
                 <ul className="space-y-3">
                   {job.responsibilities.map((item, i) => (
@@ -150,7 +154,7 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
               <section className="space-y-4 pb-4">
                 <h3 className="text-xl font-black text-foreground flex items-center gap-3">
                   <ListChecks className="text-primary" size={22} />
-                  Requirements
+                  Job Requirements
                 </h3>
                 <ul className="space-y-3">
                   {job.requirements.map((item, i) => (
