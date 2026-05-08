@@ -14,8 +14,16 @@ model Job {
   company     String
   location    String
   type        String
-  category    String
-  salary      String
+  category        String
+  experienceLevel String   @default("Entry Level") // Entry Level, Mid Level, Senior, Lead
+  salary          String   @default("Not specified")
+  salaryMin       Float?
+  salaryMax       Float?
+  currency        String   @default("USD")
+  workArrangement String   @default("Remote") // On-site, Remote, Hybrid
+  applicationMethod String @default("Email") // URL, Email
+  applicationValue  String @default("")
+  expirationDate    DateTime?
   status          String   @default("Published") // Published, Draft, Closed
   description     String   @default("No description provided.")
   skills          String[] @default([])

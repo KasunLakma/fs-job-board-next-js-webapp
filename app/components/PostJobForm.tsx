@@ -15,7 +15,11 @@ import {
   CheckCircle2, 
   AlertCircle,
   Loader2,
-  ChevronLeft
+  ChevronLeft,
+  Globe,
+  Calendar,
+  Settings,
+  Trophy
 } from "lucide-react";
 import { jobSchema, type JobInput } from "@/lib/validations/job";
 import Link from "next/link";
@@ -34,6 +38,10 @@ export default function PostJobForm() {
     resolver: zodResolver(jobSchema),
     defaultValues: {
       type: "Full-time",
+      workArrangement: "Remote",
+      category: "Frontend",
+      experienceLevel: "Entry Level",
+      currency: "USD",
       status: "Published",
       skills: [""],
       responsibilities: [""],
@@ -60,10 +68,21 @@ export default function PostJobForm() {
     setIsSubmitting(true);
     setError(null);
     try {
+      // Format salary string for legacy/display
+      const salaryDisplay = data.salaryMin && data.salaryMax 
+        ? `${data.currency} ${data.salaryMin.toLocaleString()} - ${data.salaryMax.toLocaleString()}`
+        : "Competitive";
+      
+      const submissionData = {
+        ...data,
+        salary: salaryDisplay,
+        expirationDate: data.expirationDate ? new Date(data.expirationDate).toISOString() : null,
+      };
+
       const response = await fetch("/api/jobs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify(submissionData),
       });
 
       if (!response.ok) {
@@ -112,7 +131,7 @@ export default function PostJobForm() {
             Post a <span className="text-primary">New Job</span>
           </h1>
           <p className="mt-4 text-lg text-foreground/60 max-w-2xl">
-            Fill in the details below to create a professional job listing. Your post will be visible to thousands of potential candidates.
+            Create a professional job listing. Applications will be managed directly through the recruiter dashboard.
           </p>
         </div>
 
@@ -149,28 +168,97 @@ export default function PostJobForm() {
               />
             </InputWrapper>
 
+            <InputWrapper label="Job Category" error={errors.category} icon={Tag}>
+              <select
+                {...register("category")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="Full Stack">Full Stack</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Design">Design</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Data Science">Data Science</option>
+                <option value="Mobile">Mobile</option>
+                <option value="Security">Security</option>
+                <option value="Other">Other</option>
+              </select>
+            </InputWrapper>
+
+            <InputWrapper label="Experience Level" error={errors.experienceLevel} icon={Trophy}>
+              <select
+                {...register("experienceLevel")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="Entry Level">Entry Level</option>
+                <option value="Mid Level">Mid Level</option>
+                <option value="Senior">Senior</option>
+                <option value="Lead">Lead</option>
+              </select>
+            </InputWrapper>
+          </div>
+        </div>
+
+        {/* Section 2: Compensation & Logistics */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-xl space-y-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+              <DollarSign size={20} />
+            </div>
+            <h2 className="text-xl font-black text-foreground">Compensation & Logistics</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <InputWrapper label="Currency" error={errors.currency}>
+              <select
+                {...register("currency")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="JPY">JPY (¥)</option>
+              </select>
+            </InputWrapper>
+
+            <InputWrapper label="Min Salary" error={errors.salaryMin}>
+              <input
+                type="number"
+                {...register("salaryMin")}
+                placeholder="50000"
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+              />
+            </InputWrapper>
+
+            <InputWrapper label="Max Salary" error={errors.salaryMax}>
+              <input
+                type="number"
+                {...register("salaryMax")}
+                placeholder="80000"
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+              />
+            </InputWrapper>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <InputWrapper label="Location" error={errors.location} icon={MapPin}>
               <input
                 {...register("location")}
-                placeholder="e.g. Remote or New York, NY"
+                placeholder="e.g. New York, NY"
                 className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
               />
             </InputWrapper>
 
-            <InputWrapper label="Job Category" error={errors.category} icon={Tag}>
-              <input
-                {...register("category")}
-                placeholder="e.g. Engineering, Design, Marketing"
-                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-              />
-            </InputWrapper>
-
-            <InputWrapper label="Salary Range" error={errors.salary} icon={DollarSign}>
-              <input
-                {...register("salary")}
-                placeholder="e.g. $120k - $150k"
-                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-              />
+            <InputWrapper label="Work Arrangement" error={errors.workArrangement} icon={Globe}>
+              <select
+                {...register("workArrangement")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="On-site">On-site</option>
+                <option value="Remote">Remote</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
             </InputWrapper>
 
             <InputWrapper label="Job Type" error={errors.type} icon={Briefcase}>
@@ -182,13 +270,12 @@ export default function PostJobForm() {
                 <option value="Part-time">Part-time</option>
                 <option value="Contract">Contract</option>
                 <option value="Internship">Internship</option>
-                <option value="Remote">Remote</option>
               </select>
             </InputWrapper>
           </div>
         </div>
 
-        {/* Section 2: Detailed Content */}
+        {/* Section 3: Detailed Content */}
         <div className="p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-xl space-y-10">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500">
@@ -240,7 +327,6 @@ export default function PostJobForm() {
                   </div>
                 ))}
               </div>
-              {errors.skills && <p className="text-xs font-bold text-rose-500 mt-1">{errors.skills.message}</p>}
             </div>
 
             {/* Responsibilities */}
@@ -310,6 +396,36 @@ export default function PostJobForm() {
                 ))}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Section 4: Publishing Settings */}
+        <div className="p-8 sm:p-10 rounded-3xl bg-card border border-border shadow-xl space-y-10">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+              <Settings size={20} />
+            </div>
+            <h2 className="text-xl font-black text-foreground">Publishing Settings</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <InputWrapper label="Listing Status" error={errors.status}>
+              <select
+                {...register("status")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-bold outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all appearance-none cursor-pointer"
+              >
+                <option value="Published">Published (Live immediately)</option>
+                <option value="Draft">Draft (Save for later)</option>
+              </select>
+            </InputWrapper>
+
+            <InputWrapper label="Expiration Date" error={errors.expirationDate} icon={Calendar}>
+              <input
+                type="date"
+                {...register("expirationDate")}
+                className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+              />
+            </InputWrapper>
           </div>
         </div>
 
