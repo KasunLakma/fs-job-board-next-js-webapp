@@ -10,6 +10,7 @@ import {
   ColumnDef,
   flexRender,
   SortingState,
+  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { 
   ChevronLeft, 
@@ -18,7 +19,10 @@ import {
   ArrowUpDown, 
   Eye, 
   MoreHorizontal,
-  Filter
+  Filter,
+  CheckCircle2,
+  Clock,
+  XCircle
 } from "lucide-react";
 import JobDetailsModal from "./JobDetailsModal";
 
@@ -30,6 +34,7 @@ interface Job {
   salary: string;
   type: string;
   category: string;
+  status: string;
   postedAt: string;
 }
 
@@ -39,6 +44,7 @@ interface JobsTableProps {
 
 export default function JobsTable({ data }: JobsTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +66,47 @@ export default function JobsTable({ data }: JobsTableProps) {
         ),
       },
       {
+        accessorKey: "status",
+        header: "Status",
+        cell: (info) => {
+          const status = info.getValue() as string;
+          let config = {
+            icon: <CheckCircle2 size={12} />,
+            bg: "bg-emerald-500/10",
+            text: "text-emerald-500",
+            border: "border-emerald-500/20"
+          };
+          
+          if (status === "Draft") {
+            config = {
+              icon: <Clock size={12} />,
+              bg: "bg-amber-500/10",
+              text: "text-amber-500",
+              border: "border-amber-500/20"
+            };
+          } else if (status === "Closed") {
+            config = {
+              icon: <XCircle size={12} />,
+              bg: "bg-rose-500/10",
+              text: "text-rose-500",
+              border: "border-rose-500/20"
+            };
+          }
+          
+          return (
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold border ${config.bg} ${config.text} ${config.border}`}>
+              {config.icon}
+              {status}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "type",
+        header: "Type",
+        cell: (info) => <div className="text-sm font-medium text-foreground/80">{info.getValue() as string}</div>,
+      },
+      {
         accessorKey: "category",
         header: "Category",
         cell: (info) => (
@@ -72,11 +119,6 @@ export default function JobsTable({ data }: JobsTableProps) {
         accessorKey: "location",
         header: "Location",
         cell: (info) => <div className="text-sm text-foreground/60">{info.getValue() as string}</div>,
-      },
-      {
-        accessorKey: "type",
-        header: "Type",
-        cell: (info) => <div className="text-sm font-medium text-foreground/80">{info.getValue() as string}</div>,
       },
       {
         accessorKey: "salary",
@@ -113,9 +155,11 @@ export default function JobsTable({ data }: JobsTableProps) {
     state: {
       sorting,
       globalFilter,
+      columnFilters,
     },
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
+    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -130,8 +174,8 @@ export default function JobsTable({ data }: JobsTableProps) {
   return (
     <div className="space-y-6">
       {/* Table Controls */}
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between px-2">
-        <div className="relative w-full md:w-96">
+      <div className="flex flex-col xl:flex-row gap-4 items-center justify-between px-2">
+        <div className="relative w-full xl:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground/40" size={18} />
           <input
             type="text"
@@ -142,9 +186,47 @@ export default function JobsTable({ data }: JobsTableProps) {
           />
         </div>
         
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-foreground/5 transition-all">
-            <Filter size={18} /> Filter
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+          {/* Status Filter */}
+          <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-1.5">
+            <span className="text-[10px] uppercase font-black text-foreground/40 ml-1">Status:</span>
+            <select 
+              value={(table.getColumn("status")?.getFilterValue() as string) ?? "All"}
+              onChange={(e) => table.getColumn("status")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
+              className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
+            >
+              <option value="All">All</option>
+              <option value="Published">Published</option>
+              <option value="Draft">Draft</option>
+              <option value="Closed">Closed</option>
+            </select>
+          </div>
+
+          {/* Job Type Filter */}
+          <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-1.5">
+            <span className="text-[10px] uppercase font-black text-foreground/40 ml-1">Type:</span>
+            <select 
+              value={(table.getColumn("type")?.getFilterValue() as string) ?? "All"}
+              onChange={(e) => table.getColumn("type")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
+              className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
+            >
+              <option value="All">All Types</option>
+              <option value="Full-time">Full-time</option>
+              <option value="Part-time">Part-time</option>
+              <option value="Internship">Internship</option>
+              <option value="Contract">Contract</option>
+              <option value="Remote">Remote</option>
+            </select>
+          </div>
+
+          <button 
+            onClick={() => {
+              setGlobalFilter("");
+              setColumnFilters([]);
+            }}
+            className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-foreground/5 transition-all ml-auto xl:ml-0"
+          >
+            Clear Filters
           </button>
         </div>
       </div>
@@ -183,15 +265,18 @@ export default function JobsTable({ data }: JobsTableProps) {
         {/* Empty State */}
         {table.getRowModel().rows.length === 0 && (
           <div className="py-20 text-center">
-            <p className="text-lg font-bold text-foreground">No jobs found matching your search</p>
-            <p className="text-sm text-foreground/40 mt-1">Try adjusting your filters or search term.</p>
+            <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-foreground/5 text-foreground/20 mb-4">
+              <Filter size={32} />
+            </div>
+            <p className="text-lg font-bold text-foreground">No jobs found matching your filters</p>
+            <p className="text-sm text-foreground/40 mt-1">Try adjusting your filters or search term to see more results.</p>
           </div>
         )}
 
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-border px-6 py-4 bg-foreground/[0.02]">
           <div className="text-sm text-foreground/40">
-            Showing <span className="font-bold text-foreground">{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}</span> to <span className="font-bold text-foreground">{Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, data.length)}</span> of <span className="font-bold text-foreground">{data.length}</span> results
+            Showing <span className="font-bold text-foreground">{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}</span> to <span className="font-bold text-foreground">{Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)}</span> of <span className="font-bold text-foreground">{table.getFilteredRowModel().rows.length}</span> results
           </div>
           <div className="flex items-center gap-2">
             <button

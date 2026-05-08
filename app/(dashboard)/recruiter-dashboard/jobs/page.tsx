@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import DashboardNav from "../../../components/DashboardNav";
 import JobsTable from "../../../components/JobsTable";
+import DashboardStats from "../../../components/DashboardStats";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 
@@ -13,13 +14,19 @@ export default async function ManageJobsPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  // Calculate stats
+  const total = jobs.length;
+  const published = jobs.filter(j => j.status === "Published").length;
+  const drafts = jobs.filter(j => j.status === "Draft").length;
+  const closed = jobs.filter(j => j.status === "Closed").length;
+
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-theme">
       <DashboardNav />
       
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
         {/* Header Section */}
-        <div className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6 relative">
+        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6 relative">
           <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary/5 blur-[120px]"></div>
           
           <div className="relative z-10">
@@ -40,6 +47,16 @@ export default async function ManageJobsPage() {
               Add New Job
             </Link>
           </div>
+        </div>
+
+        {/* Stats Overview */}
+        <div className="relative z-10">
+          <DashboardStats 
+            total={total} 
+            published={published} 
+            drafts={drafts} 
+            closed={closed} 
+          />
         </div>
 
         {/* Table Content */}

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { X, MapPin, Briefcase, DollarSign, Calendar, Tag } from "lucide-react";
+import { X, MapPin, Briefcase, DollarSign, Calendar, Tag, CheckCircle2 } from "lucide-react";
 
 interface JobDetailsModalProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface JobDetailsModalProps {
     salary: string;
     type: string;
     category: string;
+    status: string;
     postedAt: string;
   } | null;
 }
@@ -107,9 +108,15 @@ export default function JobDetailsModal({ isOpen, onClose, job }: JobDetailsModa
           </div>
 
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-sm text-foreground/60">
-              <Calendar size={16} />
-              <span>Posted on {job.postedAt}</span>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-foreground/60">
+              <div className="flex items-center gap-1.5">
+                <Calendar size={16} />
+                <span>Posted {job.postedAt}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 size={16} className="text-primary" />
+                <span className="font-bold text-foreground">{job.status}</span>
+              </div>
             </div>
             
             <div className="p-6 rounded-2xl bg-primary/5 border border-primary/10">

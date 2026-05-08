@@ -6,7 +6,7 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Start seeding...')
   
-  for (const job of jobsData) {
+  for (const [index, job] of jobsData.entries()) {
     const jobData = {
       slug: job.id,
       title: job.title,
@@ -16,18 +16,15 @@ async function main() {
       category: job.category,
       salary: job.salary,
       postedAt: job.postedAt,
+      status: index % 3 === 0 ? "Published" : index % 3 === 1 ? "Draft" : "Closed",
     }
 
-    const existingJob = await prisma.job.findUnique({
-      where: { slug: job.id }
+    await prisma.job.upsert({
+      where: { slug: job.id },
+      update: jobData,
+      create: jobData,
     })
-
-    if (!existingJob) {
-      await prisma.job.create({ data: jobData })
-      console.log(`Created job with slug: ${job.id}`)
-    } else {
-      console.log(`Job with slug ${job.id} already exists`)
-    }
+    console.log(`Upserted job with slug: ${job.id}`)
   }
   
   console.log('Seeding finished.')
