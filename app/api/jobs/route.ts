@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getJobs } from '@/lib/jobs';
+import prisma from "@/lib/prisma";
+import { jobSchema } from "@/lib/validations/job";
 
 export async function GET(request: Request) {
   try {
@@ -29,24 +31,24 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(result);
-  } catch (error) {
-    console.error('Error in /api/jobs:', error);
+  } catch (error: any) {
+    console.error('GET Jobs Error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: error.message || 'Internal Server Error' },
       { status: 500 }
     );
   }
 }
 
 export async function POST(request: Request) {
+  console.log("POST /api/jobs: Starting request processing");
   try {
     const body = await request.json();
+    console.log("POST /api/jobs: Received body:", JSON.stringify(body, null, 2));
     
     // Server-side validation
-    const { jobSchema } = await import("@/lib/validations/job");
     const validatedData = jobSchema.parse(body);
-
-    const prisma = (await import("@/lib/prisma")).default;
+    console.log("POST /api/jobs: Validation successful");
 
     // Generate a unique slug
     const baseSlug = `${validatedData.title}-${validatedData.company}`
@@ -56,29 +58,51 @@ export async function POST(request: Request) {
     
     let slug = baseSlug;
     let counter = 1;
-    while (await prisma.job.findUnique({ where: { slug } })) {
-      slug = `${baseSlug}-${counter}`;
-      counter++;
+    
+    // Check for existing slug
+    const existing = await prisma.job.findUnique({ where: { slug } });
+    if (existing) {
+      slug = `${baseSlug}-${Date.now()}`; // Simpler unique slug generation
     }
+
+    console.log("POST /api/jobs: Creating job with slug:", slug);
 
     const job = await prisma.job.create({
       data: {
-        ...validatedData,
+        title: validatedData.title,
+        company: validatedData.company,
+        location: validatedData.location,
+        type: validatedData.type,
+        category: validatedData.category,
+        experienceLevel: validatedData.experienceLevel || "Entry Level",
+        salary: validatedData.salary || "Competitive",
+        salaryMin: validatedData.salaryMin,
+        salaryMax: validatedData.salaryMax,
+        currency: validatedData.currency || "USD",
+        workArrangement: validatedData.workArrangement || "Remote",
+        status: validatedData.status || "Published",
+        description: validatedData.description,
+        skills: validatedData.skills || [],
+        responsibilities: validatedData.responsibilities || [],
+        requirements: validatedData.requirements || [],
         slug,
         postedAt: "Just now",
-        // Ensure expirationDate is a Date object if provided
         expirationDate: validatedData.expirationDate ? new Date(validatedData.expirationDate) : null,
       },
     });
 
+    console.log("POST /api/jobs: Job created successfully:", job.id);
     return NextResponse.json(job, { status: 201 });
   } catch (error: any) {
-    console.error('Error creating job:', error);
+    console.error('CRITICAL ERROR in POST /api/jobs:', error);
+    
     if (error.name === "ZodError") {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      const messages = error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+      return NextResponse.json({ error: messages }, { status: 400 });
     }
+    
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: error.message || 'An unexpected database error occurred.' },
       { status: 500 }
     );
   }
