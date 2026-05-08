@@ -1,16 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   useReactTable,
   getCoreRowModel,
   getSortedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
   ColumnDef,
   flexRender,
   SortingState,
-  ColumnFiltersState,
 } from "@tanstack/react-table";
 import { 
   ChevronLeft, 
@@ -22,7 +20,8 @@ import {
   Filter,
   CheckCircle2,
   Clock,
-  XCircle
+  XCircle,
+  RotateCcw
 } from "lucide-react";
 import JobDetailsModal from "./JobDetailsModal";
 
@@ -44,14 +43,55 @@ interface Job {
 
 interface JobsTableProps {
   data: Job[];
+  totalRows: number;
+  currentPage: number;
+  pageSize: number;
+  initialFilters: {
+    search: string;
+    status: string;
+    type: string;
+  };
 }
 
-export default function JobsTable({ data }: JobsTableProps) {
+export default function JobsTable({ data, totalRows, currentPage, pageSize, initialFilters }: JobsTableProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [globalFilter, setGlobalFilter] = useState("");
+  const [searchValue, setSearchValue] = useState(initialFilters.search);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Update URL search parameters
+  const updateQueryParams = (updates: Record<string, string | undefined>) => {
+    const params = new URLSearchParams(searchParams.toString());
+    
+    Object.entries(updates).forEach(([key, value]) => {
+      if (value === undefined || value === "All" || value === "") {
+        params.delete(key);
+      } else {
+        params.set(key, value);
+      }
+    });
+
+    // Reset to page 1 if filters change, unless specifically updating page
+    if (!updates.page) {
+      params.delete("page");
+    }
+
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (searchValue !== initialFilters.search) {
+        updateQueryParams({ search: searchValue });
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchValue]);
 
   const columns = useMemo<ColumnDef<Job>[]>(
     () => [
@@ -158,22 +198,16 @@ export default function JobsTable({ data }: JobsTableProps) {
     columns,
     state: {
       sorting,
-      globalFilter,
-      columnFilters,
     },
     onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 8,
-      },
-    },
+    manualPagination: true,
+    manualFiltering: true,
+    manualSorting: true,
   });
+
+  const totalPages = Math.ceil(totalRows / pageSize);
 
   return (
     <div className="space-y-6">
@@ -184,8 +218,8 @@ export default function JobsTable({ data }: JobsTableProps) {
           <input
             type="text"
             placeholder="Search job listings..."
-            value={globalFilter ?? ""}
-            onChange={(e) => setGlobalFilter(e.target.value)}
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
             className="w-full rounded-2xl border border-border bg-card py-3 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
           />
         </div>
@@ -195,8 +229,8 @@ export default function JobsTable({ data }: JobsTableProps) {
           <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-1.5">
             <span className="text-[10px] uppercase font-black text-foreground/40 ml-1">Status:</span>
             <select 
-              value={(table.getColumn("status")?.getFilterValue() as string) ?? "All"}
-              onChange={(e) => table.getColumn("status")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
+              value={initialFilters.status || "All"}
+              onChange={(e) => updateQueryParams({ status: e.target.value })}
               className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
             >
               <option value="All" className="bg-card text-foreground">All Statuses</option>
@@ -210,8 +244,8 @@ export default function JobsTable({ data }: JobsTableProps) {
           <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-3 py-1.5">
             <span className="text-[10px] uppercase font-black text-foreground/40 ml-1">Type:</span>
             <select 
-              value={(table.getColumn("type")?.getFilterValue() as string) ?? "All"}
-              onChange={(e) => table.getColumn("type")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
+              value={initialFilters.type || "All"}
+              onChange={(e) => updateQueryParams({ type: e.target.value })}
               className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
             >
               <option value="All" className="bg-card text-foreground">All Types</option>
@@ -225,12 +259,12 @@ export default function JobsTable({ data }: JobsTableProps) {
 
           <button 
             onClick={() => {
-              setGlobalFilter("");
-              setColumnFilters([]);
+              setSearchValue("");
+              router.push(pathname);
             }}
             className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-foreground/5 transition-all ml-auto xl:ml-0"
           >
-            Clear Filters
+            <RotateCcw size={16} /> Reset
           </button>
         </div>
       </div>
@@ -280,19 +314,23 @@ export default function JobsTable({ data }: JobsTableProps) {
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-border px-6 py-4 bg-foreground/[0.02]">
           <div className="text-sm text-foreground/40">
-            Showing <span className="font-bold text-foreground">{table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}</span> to <span className="font-bold text-foreground">{Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, table.getFilteredRowModel().rows.length)}</span> of <span className="font-bold text-foreground">{table.getFilteredRowModel().rows.length}</span> results
+            Showing <span className="font-bold text-foreground">{(currentPage - 1) * pageSize + 1}</span> to <span className="font-bold text-foreground">{Math.min(currentPage * pageSize, totalRows)}</span> of <span className="font-bold text-foreground">{totalRows}</span> results
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => updateQueryParams({ page: (currentPage - 1).toString() })}
+              disabled={currentPage <= 1}
               className="p-2 rounded-xl border border-border bg-background text-foreground disabled:opacity-30 hover:bg-foreground/5 transition-all"
             >
               <ChevronLeft size={20} />
             </button>
+            <div className="flex items-center gap-1 px-2">
+              <span className="text-sm font-bold text-foreground">{currentPage}</span>
+              <span className="text-sm text-foreground/40">/ {totalPages || 1}</span>
+            </div>
             <button
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() => updateQueryParams({ page: (currentPage + 1).toString() })}
+              disabled={currentPage >= totalPages}
               className="p-2 rounded-xl border border-border bg-background text-foreground disabled:opacity-30 hover:bg-foreground/5 transition-all"
             >
               <ChevronRight size={20} />

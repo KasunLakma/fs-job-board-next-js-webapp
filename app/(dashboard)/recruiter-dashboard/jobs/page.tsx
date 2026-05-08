@@ -9,16 +9,62 @@ export const metadata = {
   title: "Manage Jobs | CCA Job Board",
 };
 
-export default async function ManageJobsPage() {
-  const jobs = await prisma.job.findMany({
-    orderBy: { createdAt: 'desc' },
-  });
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
 
-  // Calculate stats
-  const total = jobs.length;
-  const published = jobs.filter(j => j.status === "Published").length;
-  const drafts = jobs.filter(j => j.status === "Draft").length;
-  const closed = jobs.filter(j => j.status === "Closed").length;
+export default async function ManageJobsPage({ searchParams }: PageProps) {
+  const params = await searchParams;
+  
+  // Parse query parameters
+  const page = Number(params.page) || 1;
+  const pageSize = 8;
+  const search = (params.search as string) || "";
+  const status = (params.status as string) || "";
+  const type = (params.type as string) || "";
+
+  // Build Prisma filter
+  const where: any = {};
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: 'insensitive' } },
+      { company: { contains: search, mode: 'insensitive' } },
+    ];
+  }
+  if (status && status !== "All") {
+    where.status = status;
+  }
+  if (type && type !== "All") {
+    where.type = type;
+  }
+
+  // Fetch data in parallel
+  const [jobs, totalFilteredJobs, allStats] = await Promise.all([
+    // paginated and filtered jobs
+    prisma.job.findMany({
+      where,
+      orderBy: { createdAt: 'desc' },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+    }),
+    // total count for current filters (for pagination)
+    prisma.job.count({ where }),
+    // global stats (all jobs)
+    prisma.job.groupBy({
+      by: ['status'],
+      _count: {
+        id: true
+      }
+    })
+  ]);
+
+  // Process global stats
+  const statsMap = allStats.reduce((acc, curr) => {
+    acc[curr.status] = curr._count.id;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const totalCount = Object.values(statsMap).reduce((a, b) => a + b, 0);
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-theme">
@@ -49,19 +95,25 @@ export default async function ManageJobsPage() {
           </div>
         </div>
 
-        {/* Stats Overview */}
+        {/* Stats Overview (Global) */}
         <div className="relative z-10">
           <DashboardStats 
-            total={total} 
-            published={published} 
-            drafts={drafts} 
-            closed={closed} 
+            total={totalCount} 
+            published={statsMap["Published"] || 0} 
+            drafts={statsMap["Draft"] || 0} 
+            closed={statsMap["Closed"] || 0} 
           />
         </div>
 
         {/* Table Content */}
         <div className="relative z-10">
-          <JobsTable data={jobs} />
+          <JobsTable 
+            data={jobs} 
+            totalRows={totalFilteredJobs}
+            currentPage={page}
+            pageSize={pageSize}
+            initialFilters={{ search, status, type }}
+          />
         </div>
       </main>
     </div>
