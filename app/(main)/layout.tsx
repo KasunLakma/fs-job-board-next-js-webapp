@@ -11,6 +11,7 @@ export default function MainLayout({
     <ThemeProvider
       attribute="class"
       forcedTheme="light"
+      enableSystem={false}
       disableTransitionOnChange
     >
       <Header />

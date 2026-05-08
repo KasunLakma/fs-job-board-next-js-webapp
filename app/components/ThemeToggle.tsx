@@ -18,13 +18,6 @@ export function ThemeToggle() {
     setMounted(true);
   }, []);
 
-  const toggleTheme = () => {
-    if (theme === 'dark') {
-      setTheme('light');
-    } else {
-      setTheme('dark');
-    }
-  };
 
   if (!mounted) {
     return (
@@ -34,9 +27,11 @@ export function ThemeToggle() {
 
   return (
     <button
-      onClick={toggleTheme}
-
-
+      onClick={() => {
+        const nextTheme = theme === 'dark' ? 'light' : 'dark';
+        alert('Switching to ' + nextTheme);
+        setTheme(nextTheme);
+      }}
       className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-900 transition-all hover:bg-gray-50 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-100 dark:hover:bg-gray-900 group"
       aria-label="Toggle theme"
     >

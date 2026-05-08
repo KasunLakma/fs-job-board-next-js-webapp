@@ -9,8 +9,8 @@ export default function RecruiterDashboardLayout({
     <ThemeProvider
       attribute="class"
       defaultTheme="dark"
-      enableSystem
-      disableTransitionOnChange
+      enableSystem={false}
+      storageKey="dashboard-theme"
     >
       {children}
     </ThemeProvider>
