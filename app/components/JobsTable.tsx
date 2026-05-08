@@ -195,10 +195,10 @@ export default function JobsTable({ data }: JobsTableProps) {
               onChange={(e) => table.getColumn("status")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
               className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
             >
-              <option value="All">All</option>
-              <option value="Published">Published</option>
-              <option value="Draft">Draft</option>
-              <option value="Closed">Closed</option>
+              <option value="All" className="bg-card text-foreground">All Statuses</option>
+              <option value="Published" className="bg-card text-foreground">Published</option>
+              <option value="Draft" className="bg-card text-foreground">Draft</option>
+              <option value="Closed" className="bg-card text-foreground">Closed</option>
             </select>
           </div>
 
@@ -210,12 +210,12 @@ export default function JobsTable({ data }: JobsTableProps) {
               onChange={(e) => table.getColumn("type")?.setFilterValue(e.target.value === "All" ? undefined : e.target.value)}
               className="bg-transparent border-none text-sm font-bold text-foreground focus:ring-0 cursor-pointer"
             >
-              <option value="All">All Types</option>
-              <option value="Full-time">Full-time</option>
-              <option value="Part-time">Part-time</option>
-              <option value="Internship">Internship</option>
-              <option value="Contract">Contract</option>
-              <option value="Remote">Remote</option>
+              <option value="All" className="bg-card text-foreground">All Types</option>
+              <option value="Full-time" className="bg-card text-foreground">Full-time</option>
+              <option value="Part-time" className="bg-card text-foreground">Part-time</option>
+              <option value="Internship" className="bg-card text-foreground">Internship</option>
+              <option value="Contract" className="bg-card text-foreground">Contract</option>
+              <option value="Remote" className="bg-card text-foreground">Remote</option>
             </select>
           </div>
 
