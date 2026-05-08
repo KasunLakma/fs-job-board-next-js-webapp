@@ -37,3 +37,47 @@ export async function GET(request: Request) {
  );
  }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    
+    // Server-side validation
+    const { jobSchema } = await import("@/lib/validations/job");
+    const validatedData = jobSchema.parse(body);
+
+    const prisma = (await import("@/lib/prisma")).default;
+
+    // Generate a unique slug
+    const baseSlug = `${validatedData.title}-${validatedData.company}`
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    
+    let slug = baseSlug;
+    let counter = 1;
+    while (await prisma.job.findUnique({ where: { slug } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    const job = await prisma.job.create({
+      data: {
+        ...validatedData,
+        slug,
+        postedAt: "Just now", // Placeholder for display
+      },
+    });
+
+    return NextResponse.json(job, { status: 201 });
+  } catch (error: any) {
+    console.error('Error creating job:', error);
+    if (error.name === "ZodError") {
+      return NextResponse.json({ error: error.errors }, { status: 400 });
+    }
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}
