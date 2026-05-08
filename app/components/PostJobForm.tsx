@@ -164,8 +164,8 @@ export default function PostJobForm({ initialData, isEdit = false }: PostJobForm
     setValue,
     formState: { errors },
   } = useForm<JobInput>({
-    resolver: zodResolver(jobSchema),
-    defaultValues: initialData || {
+    resolver: zodResolver(jobSchema) as any,
+    defaultValues: (initialData as any) || {
       type: "Full-time",
       workArrangement: "Remote",
       category: "Frontend",
