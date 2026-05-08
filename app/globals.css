@@ -17,6 +17,7 @@
 }
 
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #111827;
   --primary: #8b5cf6;
@@ -29,26 +30,33 @@
 }
 
 .dark {
-  --background: #030712;
-  --foreground: #f9fafb;
+  color-scheme: dark;
+  --background: #020617;
+  --foreground: #f8fafc;
   --primary: #8b5cf6;
   --primary-foreground: #ffffff;
   --secondary: #1e1b4b;
   --secondary-foreground: #e0e7ff;
-  --card: #030712;
-  --card-foreground: #f9fafb;
-  --border: #1f2937;
+  --card: #020617;
+  --card-foreground: #f8fafc;
+  --border: #1e293b;
+}
+
+.dark body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    background-color: var(--background);
-    color: var(--foreground);
+  html, body {
+    background-color: var(--background) !important;
+    color: var(--foreground) !important;
     font-family: var(--font-sans);
     @apply transition-colors duration-300;
+  }
+
+  * {
+    @apply border-border;
   }
 }
 

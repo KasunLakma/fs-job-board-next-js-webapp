@@ -26,7 +26,7 @@ export default async function RecruiterDashboard() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans selection:bg-primary/30 transition-theme">
+    <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-theme">
       <DashboardNav />
       
       <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
@@ -82,11 +82,11 @@ export default async function RecruiterDashboard() {
               </Link>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900/30 overflow-hidden backdrop-blur-sm shadow-xl dark:shadow-2xl">
+            <div className="rounded-3xl border border-border bg-card overflow-hidden backdrop-blur-sm shadow-xl dark:shadow-2xl">
               <div className="divide-y divide-gray-100 dark:divide-gray-800">
                 {recentApplications.length > 0 ? (
                   recentApplications.map((app) => (
-                    <div key={app.id} className="p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors group">
+                    <div key={app.id} className="p-6 flex items-center justify-between hover:bg-foreground/5 transition-colors group">
                       <div className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/10">
                           <Image src={`https://api.dicebear.com/7.x/initials/svg?seed=${app.name}`} alt={app.name} width={40} height={40} className="rounded-lg" />
@@ -103,7 +103,7 @@ export default async function RecruiterDashboard() {
                           </ClientOnly>
                           <p className="text-[10px] text-gray-400 dark:text-gray-600 mt-0.5 uppercase tracking-wider">Submitted</p>
                         </div>
-                        <button className="p-2.5 rounded-xl border border-gray-200 bg-gray-50 text-gray-500 hover:text-gray-900 hover:border-gray-300 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:text-white dark:hover:border-gray-700 dark:hover:bg-gray-800 transition-all">
+                        <button className="p-2.5 rounded-xl border border-border bg-background text-foreground/60 hover:text-foreground hover:border-border/80 hover:bg-foreground/5 transition-all">
                           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
                         </button>
                       </div>
@@ -111,7 +111,7 @@ export default async function RecruiterDashboard() {
                   ))
                 ) : (
                   <div className="p-12 text-center">
-                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800/50 text-gray-400 dark:text-gray-600 mb-4">
+                    <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-foreground/5 text-foreground/40 mb-4">
                       <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                     </div>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">No applications yet</h3>
@@ -145,7 +145,7 @@ export default async function RecruiterDashboard() {
               <div className="absolute -right-16 -top-16 h-48 w-48 rounded-full bg-primary/10 blur-[60px] transition-all group-hover:bg-primary/20"></div>
             </div>
 
-            <div className="rounded-3xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900/20 p-8">
+            <div className="rounded-3xl border border-border bg-card p-8">
               <h4 className="font-bold text-gray-900 dark:text-white mb-4">Dashboard Tips</h4>
               <ul className="space-y-4">
                 {[
@@ -154,7 +154,7 @@ export default async function RecruiterDashboard() {
                   "Use filters to manage candidates"
                 ].map((tip, i) => (
                   <li key={i} className="flex items-start gap-3 text-sm text-gray-500 dark:text-gray-500">
-                    <div className="h-5 w-5 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center shrink-0 mt-0.5">
+                    <div className="h-5 w-5 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 mt-0.5">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><path d="M20 6L9 17l-5-5"/></svg>
                     </div>
                     {tip}

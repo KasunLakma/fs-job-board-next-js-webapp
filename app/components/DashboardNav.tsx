@@ -44,7 +44,7 @@ export default function DashboardNav() {
   return (
     <nav className={`sticky top-0 z-50 w-full transition-theme ${
       scrolled 
-        ? 'border-b border-gray-200 bg-white/80 dark:border-gray-800 dark:bg-gray-950/80 backdrop-blur-xl' 
+        ? 'border-b border-border bg-background/80 backdrop-blur-xl' 
         : 'bg-transparent'
     }`}>
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
@@ -69,8 +69,8 @@ export default function DashboardNav() {
                   href={link.href} 
                   className={`px-4 py-2 text-sm font-medium rounded-lg transition-all ${
                     isActive 
-                      ? 'text-gray-900 bg-gray-100 dark:text-white dark:bg-white/10 shadow-inner' 
-                      : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/5'
+                      ? 'text-foreground bg-foreground/10 shadow-inner' 
+                      : 'text-foreground/60 hover:text-foreground hover:bg-foreground/5'
                   }`}
                 >
                   {link.name}
@@ -83,7 +83,7 @@ export default function DashboardNav() {
         <div className="flex items-center gap-4">
           <ThemeToggle />
           
-          <button className="relative p-2.5 text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-white dark:hover:bg-white/5 rounded-full transition-all">
+          <button className="relative p-2.5 text-foreground/60 hover:text-foreground hover:bg-foreground/5 rounded-full transition-all">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
             <span className="absolute top-2.5 right-2.5 h-2 w-2 rounded-full bg-primary shadow-[0_0_8px_rgba(139,92,246,0.8)]"></span>
           </button>
@@ -91,7 +91,7 @@ export default function DashboardNav() {
           <div className="relative">
             <button 
               onClick={() => setIsProfileOpen(!isProfileOpen)}
-              className="flex items-center gap-3 p-1.5 rounded-xl border border-gray-200 bg-gray-50/50 hover:border-gray-300 hover:bg-gray-100 dark:border-gray-800 dark:bg-gray-900/50 dark:hover:border-gray-700 dark:hover:bg-gray-800 transition-all group"
+              className="flex items-center gap-3 p-1.5 rounded-xl border border-border bg-foreground/5 hover:border-border/80 hover:bg-foreground/10 transition-all group"
             >
               <div className="h-8 w-8 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 group-hover:border-primary/50 transition-colors">
                 <Image src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="Profile" width={32} height={32} />
@@ -105,7 +105,7 @@ export default function DashboardNav() {
 
             {isProfileOpen && (
               <div 
-                className="absolute right-0 mt-3 w-56 rounded-2xl border border-gray-200 bg-white p-2 shadow-2xl dark:border-gray-800 dark:bg-gray-900 animate-in fade-in slide-in-from-top-2 duration-300 ring-1 ring-black/5 dark:ring-white/5"
+                className="absolute right-0 mt-3 w-56 rounded-2xl border border-border bg-card p-2 shadow-2xl animate-in fade-in slide-in-from-top-2 duration-300 ring-1 ring-black/5 dark:ring-white/5"
                 onMouseLeave={() => setIsProfileOpen(false)}
               >
                 <div className="px-3 py-3 border-b border-gray-100 dark:border-gray-800 mb-1">

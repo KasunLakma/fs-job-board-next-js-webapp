@@ -20,9 +20,7 @@ export function ThemeToggle() {
 
 
   if (!mounted) {
-    return (
-      <div className="h-10 w-10 rounded-full border border-gray-200 bg-gray-100/50 dark:border-gray-800 dark:bg-gray-900/50 animate-pulse" />
-    );
+    return null;
   }
 
   return (

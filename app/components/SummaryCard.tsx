@@ -13,7 +13,7 @@ interface SummaryCardProps {
 
 export default function SummaryCard({ title, value, icon, description, trend }: SummaryCardProps) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900/50 p-6 shadow-xl transition-theme hover:border-primary/50 hover:bg-gray-50 dark:hover:bg-gray-900 hover:shadow-primary/5">
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-6 shadow-xl transition-theme hover:border-primary/50 hover:bg-foreground/5 hover:shadow-primary/5">
 
       <div className="flex items-center justify-between">
         <div className="relative z-10">
