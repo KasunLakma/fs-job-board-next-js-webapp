@@ -17,6 +17,10 @@ async function main() {
       salary: job.salary,
       postedAt: job.postedAt,
       status: index % 3 === 0 ? "Published" : index % 3 === 1 ? "Draft" : "Closed",
+      description: job.description || "No description provided.",
+      skills: job.skills || [],
+      responsibilities: job.responsibilities || [],
+      requirements: job.requirements || [],
     }
 
     await prisma.job.upsert({

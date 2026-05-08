@@ -7,6 +7,10 @@ export interface Job {
   category: string;
   postedAt: string;
   salary: string;
+  description?: string;
+  skills?: string[];
+  responsibilities?: string[];
+  requirements?: string[];
 }
 
 const rawJobs: Omit<Job, 'id'>[] = [
@@ -18,6 +22,20 @@ const rawJobs: Omit<Job, 'id'>[] = [
     category: "Frontend",
     postedAt: "2 days ago",
     salary: "$3,000/mo",
+    description: "We are looking for a motivated Frontend Developer Intern to join our team and help build amazing web experiences using React and modern CSS techniques.",
+    skills: ["React", "TypeScript", "Tailwind CSS", "Figma"],
+    responsibilities: [
+      "Collaborate with senior developers to implement UI components",
+      "Write clean, maintainable, and well-documented code",
+      "Participate in code reviews and team meetings",
+      "Stay up-to-date with emerging frontend technologies"
+    ],
+    requirements: [
+      "Basic understanding of HTML, CSS, and JavaScript",
+      "Experience with React or another modern frontend framework",
+      "Strong problem-solving skills and attention to detail",
+      "Currently pursuing or recently completed a degree in Computer Science or a related field"
+    ]
   },
   {
     title: "Junior Backend Engineer",

@@ -36,6 +36,10 @@ interface Job {
   category: string;
   status: string;
   postedAt: string;
+  description: string;
+  skills: string[];
+  responsibilities: string[];
+  requirements: string[];
 }
 
 interface JobsTableProps {

@@ -16,7 +16,11 @@ model Job {
   type        String
   category    String
   salary      String
-  status      String   @default("Published") // Published, Draft, Closed
+  status          String   @default("Published") // Published, Draft, Closed
+  description     String   @default("No description provided.")
+  skills          String[] @default([])
+  responsibilities String[] @default([])
+  requirements    String[] @default([])
   
   // Timestamps
   postedAt    String // Keeping string to match "2 days ago" format from dummy data for now
