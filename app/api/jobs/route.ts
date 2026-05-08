@@ -96,8 +96,10 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('CRITICAL ERROR in POST /api/jobs:', error);
     
-    if (error.name === "ZodError") {
-      const messages = error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ');
+    if (error.name === "ZodError" || error.issues) {
+      const messages = error.errors 
+        ? error.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ')
+        : error.message || "Validation failed";
       return NextResponse.json({ error: messages }, { status: 400 });
     }
     

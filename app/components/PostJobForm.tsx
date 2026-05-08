@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
@@ -23,12 +23,112 @@ import {
   X,
   Eye,
   Building2,
-  Clock
+  Clock,
+  Sparkles
 } from "lucide-react";
 import { jobSchema, type JobInput } from "@/lib/validations/job";
 import Link from "next/link";
 
-// Move sub-components outside to prevent focus loss
+interface PostJobFormProps {
+  initialData?: JobInput & { id?: string };
+  isEdit?: boolean;
+}
+
+// Smart Suggestion Input Component
+const SuggestionInput = ({ 
+  label, 
+  error, 
+  icon: Icon, 
+  suggestions, 
+  value, 
+  onChange, 
+  placeholder,
+  name,
+  register
+}: any) => {
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filtered, setFiltered] = useState<string[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    onChange(e); // Update form state
+    
+    if (val.trim().length > 0) {
+      const matches = suggestions.filter((s: string) => 
+        s.toLowerCase().includes(val.toLowerCase())
+      ).slice(0, 5);
+      setFiltered(matches);
+      setShowSuggestions(matches.length > 0);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (s: string) => {
+    onChange({ target: { name, value: s } }); // Update react-hook-form
+    setShowSuggestions(false);
+  };
+
+  return (
+    <div className="space-y-2 relative" ref={containerRef}>
+      <label className="text-sm font-black uppercase tracking-wider text-foreground/60 flex items-center gap-2">
+        {Icon && <Icon size={14} className="text-primary" />}
+        {label}
+      </label>
+      <div className="relative">
+        <input
+          {...register(name)}
+          autoComplete="off"
+          placeholder={placeholder}
+          value={value}
+          onChange={handleInputChange}
+          onFocus={() => {
+            if (value && filtered.length > 0) setShowSuggestions(true);
+          }}
+          className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+        />
+        {showSuggestions && (
+          <div className="absolute z-[110] left-0 right-0 top-full mt-2 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="p-2 border-b border-border bg-foreground/[0.02] flex items-center gap-2 px-4 py-2">
+              <Sparkles size={12} className="text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Smart Suggestions</span>
+            </div>
+            <div className="max-h-48 overflow-y-auto custom-scrollbar">
+              {filtered.map((s, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => selectSuggestion(s)}
+                  className="w-full text-left px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-primary hover:text-white transition-all flex items-center justify-between group"
+                >
+                  {s}
+                  <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+      {error && (
+        <p className="text-xs font-bold text-rose-500 flex items-center gap-1 mt-1">
+          <AlertCircle size={12} /> {error.message}
+        </p>
+      )}
+    </div>
+  );
+};
+
 const InputWrapper = ({ label, error, children, icon: Icon }: any) => (
   <div className="space-y-2">
     <label className="text-sm font-black uppercase tracking-wider text-foreground/60 flex items-center gap-2">
@@ -44,13 +144,16 @@ const InputWrapper = ({ label, error, children, icon: Icon }: any) => (
   </div>
 );
 
-export default function PostJobForm() {
+export default function PostJobForm({ initialData, isEdit = false }: PostJobFormProps) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState({ locations: [], companies: [], skills: [] });
   
   // Local states for the "Add" input fields
   const [currentSkill, setCurrentSkill] = useState("");
+  const [skillFiltered, setSkillFiltered] = useState<string[]>([]);
+  const [showSkillSuggestions, setShowSkillSuggestions] = useState(false);
   const [currentRequirement, setCurrentRequirement] = useState("");
   const [currentResponsibility, setCurrentResponsibility] = useState("");
 
@@ -62,7 +165,7 @@ export default function PostJobForm() {
     formState: { errors },
   } = useForm<JobInput>({
     resolver: zodResolver(jobSchema),
-    defaultValues: {
+    defaultValues: initialData || {
       type: "Full-time",
       workArrangement: "Remote",
       category: "Frontend",
@@ -72,8 +175,16 @@ export default function PostJobForm() {
       skills: [],
       responsibilities: [],
       requirements: [],
+      expirationDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     },
   });
+
+  useEffect(() => {
+    fetch("/api/suggestions")
+      .then(res => res.json())
+      .then(data => setSuggestions(data))
+      .catch(err => console.error("Suggestions failed:", err));
+  }, []);
 
   // Watch fields for live preview and list rendering
   const watchAllFields = watch();
@@ -81,10 +192,25 @@ export default function PostJobForm() {
   const requirements = watch("requirements") || [];
   const responsibilities = watch("responsibilities") || [];
 
-  const addSkill = () => {
-    if (currentSkill.trim()) {
-      setValue("skills", [...skills, currentSkill.trim()], { shouldValidate: true });
+  const addSkill = (val?: string) => {
+    const skillToAdd = val || currentSkill.trim();
+    if (skillToAdd && !skills.includes(skillToAdd)) {
+      setValue("skills", [...skills, skillToAdd], { shouldValidate: true });
       setCurrentSkill("");
+      setShowSkillSuggestions(false);
+    }
+  };
+
+  const handleSkillInput = (val: string) => {
+    setCurrentSkill(val);
+    if (val.trim().length > 0) {
+      const matches = suggestions.skills.filter((s: string) => 
+        s.toLowerCase().includes(val.toLowerCase()) && !skills.includes(s)
+      ).slice(0, 5);
+      setSkillFiltered(matches);
+      setShowSkillSuggestions(matches.length > 0);
+    } else {
+      setShowSkillSuggestions(false);
     }
   };
 
@@ -128,8 +254,11 @@ export default function PostJobForm() {
         expirationDate: data.expirationDate ? new Date(data.expirationDate).toISOString() : null,
       };
 
-      const response = await fetch("/api/jobs", {
-        method: "POST",
+      const url = isEdit ? `/api/jobs/${initialData?.id}` : "/api/jobs";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(submissionData),
       });
@@ -138,11 +267,11 @@ export default function PostJobForm() {
       if (!response.ok) {
         if (contentType && contentType.includes("application/json")) {
           const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to post job");
+          throw new Error(errorData.error || `Failed to ${isEdit ? 'update' : 'post'} job`);
         } else {
           const text = await response.text();
           console.error("Non-JSON Error Response:", text);
-          throw new Error(`Server Error (${response.status}): The server returned an unexpected response. This usually indicates a database connection issue or a missing field in the schema.`);
+          throw new Error(`Server Error (${response.status}): The server returned an unexpected response.`);
         }
       }
 
@@ -171,10 +300,10 @@ export default function PostJobForm() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
             <div>
               <h1 className="text-4xl sm:text-5xl font-black tracking-tight text-foreground">
-                Post a <span className="text-primary">New Job</span>
+                {isEdit ? "Edit" : "Post a"} <span className="text-primary">{isEdit ? "Listing" : "New Job"}</span>
               </h1>
               <p className="mt-4 text-lg text-foreground/60 max-w-2xl">
-                Create a professional job listing. Applications will be managed directly through the recruiter dashboard.
+                {isEdit ? "Update the details of your job listing below." : "Create a professional job listing. Applications will be managed directly through the recruiter dashboard."}
               </p>
             </div>
 
@@ -198,18 +327,22 @@ export default function PostJobForm() {
                 <InputWrapper label="Job Title" error={errors.title}>
                   <input
                     {...register("title")}
+                    autoComplete="off"
                     placeholder="e.g. Senior Frontend Engineer"
                     className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
                   />
                 </InputWrapper>
 
-                <InputWrapper label="Company Name" error={errors.company}>
-                  <input
-                    {...register("company")}
-                    placeholder="e.g. TechNova Solutions"
-                    className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                  />
-                </InputWrapper>
+                <SuggestionInput 
+                  label="Company Name" 
+                  name="company"
+                  value={watchAllFields.company}
+                  onChange={(e: any) => setValue("company", e.target.value, { shouldValidate: true })}
+                  register={register}
+                  suggestions={suggestions.companies}
+                  error={errors.company}
+                  placeholder="e.g. TechNova Solutions"
+                />
 
                 <InputWrapper label="Job Category" error={errors.category} icon={Tag}>
                   <select
@@ -285,13 +418,17 @@ export default function PostJobForm() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <InputWrapper label="Location" error={errors.location} icon={MapPin}>
-                  <input
-                    {...register("location")}
-                    placeholder="e.g. New York, NY"
-                    className="w-full rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                  />
-                </InputWrapper>
+                <SuggestionInput 
+                  label="Location" 
+                  name="location"
+                  icon={MapPin}
+                  value={watchAllFields.location}
+                  onChange={(e: any) => setValue("location", e.target.value, { shouldValidate: true })}
+                  register={register}
+                  suggestions={suggestions.locations}
+                  error={errors.location}
+                  placeholder="e.g. New York, NY"
+                />
 
                 <InputWrapper label="Work Arrangement" error={errors.workArrangement} icon={Globe}>
                   <select
@@ -341,22 +478,44 @@ export default function PostJobForm() {
                 {/* Skills Interactive */}
                 <div className="space-y-4">
                   <label className="text-sm font-black uppercase tracking-wider text-foreground/60">Required Skills</label>
-                  <div className="flex gap-3">
-                    <input
-                      type="text"
-                      value={currentSkill}
-                      onChange={(e) => setCurrentSkill(e.target.value)}
-                      onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
-                      placeholder="Type a skill (e.g. React)..."
-                      className="flex-1 rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={addSkill}
-                      className="px-6 rounded-2xl bg-primary/10 text-primary font-black text-sm hover:bg-primary hover:text-white transition-all flex items-center gap-2"
-                    >
-                      <Plus size={18} /> Add
-                    </button>
+                  <div className="relative">
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        autoComplete="off"
+                        value={currentSkill}
+                        onChange={(e) => handleSkillInput(e.target.value)}
+                        onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addSkill())}
+                        placeholder="Type a skill (e.g. React)..."
+                        className="flex-1 rounded-2xl border border-border bg-background px-5 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => addSkill()}
+                        className="px-6 rounded-2xl bg-primary/10 text-primary font-black text-sm hover:bg-primary hover:text-white transition-all flex items-center gap-2"
+                      >
+                        <Plus size={18} /> Add
+                      </button>
+                    </div>
+                    {showSkillSuggestions && (
+                      <div className="absolute z-[110] left-0 right-0 top-full mt-2 rounded-2xl border border-border bg-card shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="p-2 border-b border-border bg-foreground/[0.02] flex items-center gap-2 px-4 py-2">
+                          <Sparkles size={12} className="text-primary" />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40">Suggested Skills</span>
+                        </div>
+                        {skillFiltered.map((s, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => addSkill(s)}
+                            className="w-full text-left px-4 py-3 text-sm font-bold text-foreground/70 hover:bg-primary hover:text-white transition-all flex items-center justify-between group"
+                          >
+                            {s}
+                            <Plus size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-wrap gap-2 pt-2">
                     {skills.map((skill, index) => (
@@ -378,6 +537,7 @@ export default function PostJobForm() {
                   <div className="flex gap-3">
                     <input
                       type="text"
+                      autoComplete="off"
                       value={currentRequirement}
                       onChange={(e) => setCurrentRequirement(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addRequirement())}
@@ -412,6 +572,7 @@ export default function PostJobForm() {
                   <div className="flex gap-3">
                     <input
                       type="text"
+                      autoComplete="off"
                       value={currentResponsibility}
                       onChange={(e) => setCurrentResponsibility(e.target.value)}
                       onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addResponsibility())}
@@ -458,6 +619,7 @@ export default function PostJobForm() {
                   >
                     <option value="Published">Published (Live immediately)</option>
                     <option value="Draft">Draft (Save for later)</option>
+                    <option value="Closed">Closed (Remove from board)</option>
                   </select>
                 </InputWrapper>
 
@@ -486,12 +648,12 @@ export default function PostJobForm() {
                 {isSubmitting ? (
                   <>
                     <Loader2 size={20} className="animate-spin" />
-                    Posting...
+                    {isEdit ? "Saving..." : "Posting..."}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 size={20} />
-                    Publish Job Listing
+                    {isEdit ? "Save Changes" : "Publish Job Listing"}
                   </>
                 )}
               </button>

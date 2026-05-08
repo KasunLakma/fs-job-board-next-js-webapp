@@ -17,7 +17,10 @@ export const jobSchema = z.object({
   salary: z.string().optional(), // Legacy support or display string
 
   // Listing Details
-  expirationDate: z.string().optional().refine((val) => !val || new Date(val) > new Date(), {
+  expirationDate: z.string().nullable().optional().or(z.literal("")).refine((val) => {
+    if (!val) return true;
+    return new Date(val) > new Date();
+  }, {
     message: "Expiration date must be in the future",
   }),
   status: z.enum(["Published", "Draft", "Closed"]).default("Published"),

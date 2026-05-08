@@ -14,15 +14,19 @@ import {
   Search, 
   ArrowUpDown, 
   Eye, 
-  MoreHorizontal,
+  Trash2,
   Filter,
   CheckCircle2,
   Clock,
   XCircle,
   RotateCcw,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Settings,
+  X,
+  AlertCircle
 } from "lucide-react";
+import Link from "next/link";
 import JobDetailsModal from "./JobDetailsModal";
 
 interface Job {
@@ -63,8 +67,14 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
   const [searchValue, setSearchValue] = useState(initialFilters.search);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Update URL search parameters
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const updateQueryParams = (updates: Record<string, string | undefined>) => {
     const params = new URLSearchParams(searchParams.toString());
     
@@ -76,7 +86,6 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
       }
     });
 
-    // Reset to page 1 if filters or sort change, unless specifically updating page
     if (!updates.page) {
       params.delete("page");
     }
@@ -84,7 +93,6 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  // Debounce search input
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchValue !== initialFilters.search) {
@@ -94,7 +102,6 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
     return () => clearTimeout(timer);
   }, [searchValue]);
 
-  // Handle Sort Toggle
   const handleSort = (field: string) => {
     const isCurrentSort = initialFilters.sort === field;
     const newOrder = isCurrentSort && initialFilters.order === "asc" ? "desc" : "asc";
@@ -109,6 +116,20 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
     ) : (
       <ArrowDown size={14} className="text-primary" />
     );
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/jobs/${id}`, { method: "DELETE" });
+      if (!response.ok) throw new Error("Failed to delete job");
+      
+      showToast("Job deleted successfully", "success");
+      router.refresh();
+    } catch (err: any) {
+      showToast(err.message, "error");
+    } finally {
+      setIsDeleting(null);
+    }
   };
 
   const columns = useMemo<ColumnDef<Job>[]>(
@@ -171,6 +192,18 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
         },
       },
       {
+        id: "applications",
+        header: "Applications",
+        cell: ({ row }) => (
+          <Link 
+            href={`/recruiter-dashboard/jobs/${row.original.id}/applications`}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1 text-xs font-bold text-primary hover:bg-primary hover:text-white transition-all"
+          >
+            0 Applications
+          </Link>
+        ),
+      },
+      {
         accessorKey: "type",
         header: () => (
           <button
@@ -181,20 +214,6 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
           </button>
         ),
         cell: (info) => <div className="text-sm font-medium text-foreground/80">{info.getValue() as string}</div>,
-      },
-      {
-        accessorKey: "category",
-        header: "Category",
-        cell: (info) => (
-          <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-            {info.getValue() as string}
-          </span>
-        ),
-      },
-      {
-        accessorKey: "location",
-        header: "Location",
-        cell: (info) => <div className="text-sm text-foreground/60">{info.getValue() as string}</div>,
       },
       {
         accessorKey: "createdAt",
@@ -218,18 +237,47 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
                 setSelectedJob(row.original);
                 setIsModalOpen(true);
               }}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-1.5 text-xs font-bold text-foreground hover:bg-foreground/5 hover:border-primary/50 transition-all"
+              className="p-2 rounded-xl border border-border bg-background text-foreground/40 hover:text-primary hover:border-primary/50 transition-all"
+              title="View Details"
             >
-              <Eye size={14} /> View
+              <Eye size={16} />
             </button>
-            <button className="p-2 rounded-lg hover:bg-foreground/5 text-foreground/40 hover:text-foreground transition-all">
-              <MoreHorizontal size={16} />
-            </button>
+            <Link
+              href={`/recruiter-dashboard/jobs/${row.original.id}/edit`}
+              className="p-2 rounded-xl border border-border bg-background text-foreground/40 hover:text-amber-500 hover:border-amber-500/50 transition-all"
+              title="Edit Job"
+            >
+              <Settings size={16} />
+            </Link>
+            {isDeleting === row.original.id ? (
+              <div className="flex items-center gap-1 animate-in slide-in-from-right-2">
+                <button
+                  onClick={() => handleDelete(row.original.id)}
+                  className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-[10px] font-black hover:bg-rose-600 transition-all"
+                >
+                  Confirm
+                </button>
+                <button
+                  onClick={() => setIsDeleting(null)}
+                  className="p-1.5 rounded-lg bg-foreground/5 text-foreground/60 hover:text-foreground"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsDeleting(row.original.id)}
+                className="p-2 rounded-xl border border-border bg-background text-foreground/40 hover:text-rose-500 hover:border-rose-500/50 transition-all"
+                title="Delete Job"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
           </div>
         ),
       },
     ],
-    [initialFilters]
+    [initialFilters, isDeleting]
   );
 
   const table = useReactTable({
@@ -244,7 +292,17 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
   const totalPages = Math.ceil(totalRows / pageSize);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-8 left-1/2 -translate-x-1/2 z-[200] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border animate-in slide-in-from-top-4 duration-300 ${
+          toast.type === "success" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-500" : "bg-rose-500/10 border-rose-500/20 text-rose-500"
+        }`}>
+          {toast.type === "success" ? <CheckCircle2 size={20} /> : <AlertCircle size={20} />}
+          <p className="font-black text-sm">{toast.message}</p>
+        </div>
+      )}
+
       {/* Table Controls */}
       <div className="flex flex-col xl:flex-row gap-4 items-center justify-between px-2">
         <div className="relative w-full xl:w-96">
