@@ -22,6 +22,8 @@ export default async function ManageJobsPage({ searchParams }: PageProps) {
   const search = (params.search as string) || "";
   const status = (params.status as string) || "";
   const type = (params.type as string) || "";
+  const sort = (params.sort as string) || "createdAt";
+  const order = (params.order as "asc" | "desc") || "desc";
 
   // Build Prisma filter
   const where: any = {};
@@ -40,10 +42,10 @@ export default async function ManageJobsPage({ searchParams }: PageProps) {
 
   // Fetch data in parallel
   const [jobs, totalFilteredJobs, allStats] = await Promise.all([
-    // paginated and filtered jobs
+    // paginated and filtered jobs with sorting
     prisma.job.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: { [sort]: order },
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
@@ -112,7 +114,7 @@ export default async function ManageJobsPage({ searchParams }: PageProps) {
             totalRows={totalFilteredJobs}
             currentPage={page}
             pageSize={pageSize}
-            initialFilters={{ search, status, type }}
+            initialFilters={{ search, status, type, sort, order }}
           />
         </div>
       </main>

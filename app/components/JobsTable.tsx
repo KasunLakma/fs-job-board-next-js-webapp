@@ -5,10 +5,8 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   useReactTable,
   getCoreRowModel,
-  getSortedRowModel,
   ColumnDef,
   flexRender,
-  SortingState,
 } from "@tanstack/react-table";
 import { 
   ChevronLeft, 
@@ -21,7 +19,9 @@ import {
   CheckCircle2,
   Clock,
   XCircle,
-  RotateCcw
+  RotateCcw,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import JobDetailsModal from "./JobDetailsModal";
 
@@ -50,6 +50,8 @@ interface JobsTableProps {
     search: string;
     status: string;
     type: string;
+    sort: string;
+    order: string;
   };
 }
 
@@ -58,7 +60,6 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [sorting, setSorting] = useState<SortingState>([]);
   const [searchValue, setSearchValue] = useState(initialFilters.search);
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -75,7 +76,7 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
       }
     });
 
-    // Reset to page 1 if filters change, unless specifically updating page
+    // Reset to page 1 if filters or sort change, unless specifically updating page
     if (!updates.page) {
       params.delete("page");
     }
@@ -93,16 +94,33 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
     return () => clearTimeout(timer);
   }, [searchValue]);
 
+  // Handle Sort Toggle
+  const handleSort = (field: string) => {
+    const isCurrentSort = initialFilters.sort === field;
+    const newOrder = isCurrentSort && initialFilters.order === "asc" ? "desc" : "asc";
+    updateQueryParams({ sort: field, order: newOrder });
+  };
+
+  const SortIcon = ({ field }: { field: string }) => {
+    const isActive = initialFilters.sort === field;
+    if (!isActive) return <ArrowUpDown size={14} className="text-foreground/20 group-hover:text-primary transition-colors" />;
+    return initialFilters.order === "asc" ? (
+      <ArrowUp size={14} className="text-primary" />
+    ) : (
+      <ArrowDown size={14} className="text-primary" />
+    );
+  };
+
   const columns = useMemo<ColumnDef<Job>[]>(
     () => [
       {
         accessorKey: "title",
-        header: ({ column }) => (
+        header: () => (
           <button
-            className="flex items-center gap-1 hover:text-primary transition-colors"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            onClick={() => handleSort("title")}
+            className="flex items-center gap-2 group hover:text-primary transition-colors"
           >
-            Job Title <ArrowUpDown size={14} />
+            Job Title <SortIcon field="title" />
           </button>
         ),
         cell: (info) => (
@@ -111,7 +129,14 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
       },
       {
         accessorKey: "status",
-        header: "Status",
+        header: () => (
+          <button
+            onClick={() => handleSort("status")}
+            className="flex items-center gap-2 group hover:text-primary transition-colors"
+          >
+            Status <SortIcon field="status" />
+          </button>
+        ),
         cell: (info) => {
           const status = info.getValue() as string;
           let config = {
@@ -147,7 +172,14 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
       },
       {
         accessorKey: "type",
-        header: "Type",
+        header: () => (
+          <button
+            onClick={() => handleSort("type")}
+            className="flex items-center gap-2 group hover:text-primary transition-colors"
+          >
+            Type <SortIcon field="type" />
+          </button>
+        ),
         cell: (info) => <div className="text-sm font-medium text-foreground/80">{info.getValue() as string}</div>,
       },
       {
@@ -165,9 +197,16 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
         cell: (info) => <div className="text-sm text-foreground/60">{info.getValue() as string}</div>,
       },
       {
-        accessorKey: "salary",
-        header: "Salary",
-        cell: (info) => <div className="text-sm font-bold text-emerald-500">{info.getValue() as string}</div>,
+        accessorKey: "createdAt",
+        header: () => (
+          <button
+            onClick={() => handleSort("createdAt")}
+            className="flex items-center gap-2 group hover:text-primary transition-colors"
+          >
+            Posted <SortIcon field="createdAt" />
+          </button>
+        ),
+        cell: ({ row }) => <div className="text-sm font-medium text-foreground/60">{row.original.postedAt}</div>,
       },
       {
         id: "actions",
@@ -190,18 +229,13 @@ export default function JobsTable({ data, totalRows, currentPage, pageSize, init
         ),
       },
     ],
-    []
+    [initialFilters]
   );
 
   const table = useReactTable({
     data,
     columns,
-    state: {
-      sorting,
-    },
-    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualFiltering: true,
     manualSorting: true,
