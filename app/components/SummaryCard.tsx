@@ -17,11 +17,11 @@ export default function SummaryCard({ title, value, icon, description, trend }: 
 
       <div className="flex items-center justify-between">
         <div className="relative z-10">
-          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
-          <h3 className="mt-1 text-4xl font-bold tracking-tight text-gray-900 dark:text-white">{value}</h3>
+          <p className="text-sm font-medium text-foreground/50">{title}</p>
+          <h3 className="mt-1 text-4xl font-bold tracking-tight text-foreground">{value}</h3>
           
           {description && (
-            <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">{description}</p>
+            <p className="mt-2 text-xs text-foreground/40">{description}</p>
           )}
           
           {trend && (
@@ -37,7 +37,7 @@ export default function SummaryCard({ title, value, icon, description, trend }: 
                   </svg>
                 )}
               </div>
-              {trend.value} <span className="ml-1 text-gray-400 dark:text-gray-500 font-normal">vs last month</span>
+              {trend.value} <span className="ml-1 text-foreground/40 font-normal">vs last month</span>
             </div>
           )}
         </div>

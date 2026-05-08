@@ -43,8 +43,8 @@
 }
 
 .dark body {
-  background-color: #020617 !important;
-  color: #f8fafc !important;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
 }
 
 @layer base {
