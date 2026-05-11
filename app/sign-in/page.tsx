@@ -36,7 +36,7 @@ export default function SignInPage() {
               identityPreviewEditButtonIcon: "text-primary",
             }
           }}
-          signUpUrl="/signup"
+          signUpUrl="/sign-up"
         />
         
         <p className="mt-8 text-center text-xs font-bold text-white/10 uppercase tracking-widest">

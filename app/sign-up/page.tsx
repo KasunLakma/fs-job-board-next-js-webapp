@@ -34,7 +34,7 @@ export default function SignUpPage() {
               footerActionLink: "text-primary hover:text-primary/80 font-black",
             }
           }}
-          signInUrl="/signin"
+          signInUrl="/sign-in"
         />
         
         <p className="mt-8 text-center text-xs font-bold text-white/10 uppercase tracking-widest">
