@@ -21,6 +21,8 @@ export default function SignInPage() {
         </Link>
 
         <SignIn 
+          path="/sign-in"
+          routing="path"
           appearance={{
             elements: {
               formButtonPrimary: "bg-primary hover:bg-primary/90 text-sm font-black uppercase tracking-widest py-3",
