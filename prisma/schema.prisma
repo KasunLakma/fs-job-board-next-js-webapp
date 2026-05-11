@@ -54,3 +54,17 @@ model Application {
   status       String   @default("Pending") // Pending, In-Review, Accepted, Rejected
   createdAt    DateTime @default(now())
 }
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
