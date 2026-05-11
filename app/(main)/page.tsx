@@ -90,7 +90,7 @@ export default function Home() {
             Create a profile today, upload your resume, and let top tech companies find you. It is completely free for students.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/signup" className="bg-white text-primary font-bold px-8 py-3 rounded-md hover:bg-gray-100 transition-colors shadow-lg">
+            <Link href="/sign-up" className="bg-white text-primary font-bold px-8 py-3 rounded-md hover:bg-gray-100 transition-colors shadow-lg">
               Create Profile
             </Link>
             <Link href="/jobs" className="bg-transparent border border-white text-white font-bold px-8 py-3 rounded-md hover:bg-white/10 transition-colors">

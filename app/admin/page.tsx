@@ -12,7 +12,7 @@ export default async function AdminDashboardPage() {
   const user = await currentUser();
 
   if (!user) {
-    redirect("/signin");
+    redirect("/sign-in");
   }
 
   // Verify role in database
