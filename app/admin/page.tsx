@@ -1,5 +1,7 @@
 import prisma from "@/lib/prisma";
 import AdminDashboardClient from "./AdminDashboardClient";
+import { currentUser } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: "Super Admin Dashboard | CCA Job Board",
@@ -7,9 +9,20 @@ export const metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  // --- SECURITY CHECK (TEMPORARILY DISABLED FOR TESTING) ---
-  // In a real app, replace this with your actual authentication logic
-  // ------------------------------------
+  const user = await currentUser();
+
+  if (!user) {
+    redirect("/signin");
+  }
+
+  // Verify role in database
+  const dbUser = await prisma.user.findUnique({
+    where: { clerkId: user.id },
+  });
+
+  if (!dbUser || dbUser.role !== "ADMIN") {
+    redirect("/");
+  }
 
   // Fetch real-time data from the database
   let userCount = 0;

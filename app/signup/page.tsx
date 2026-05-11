@@ -1,8 +1,8 @@
-import { SignIn } from "@clerk/nextjs";
+import { SignUp } from "@clerk/nextjs";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-[#050505] flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Decoration */}
@@ -20,7 +20,7 @@ export default function SignInPage() {
           Back to Home
         </Link>
 
-        <SignIn 
+        <SignUp 
           appearance={{
             elements: {
               formButtonPrimary: "bg-primary hover:bg-primary/90 text-sm font-black uppercase tracking-widest py-3",
@@ -32,11 +32,9 @@ export default function SignInPage() {
               formFieldInput: "bg-white/5 border border-white/10 text-white rounded-2xl px-4 py-3 focus:border-primary/50 focus:ring-0",
               footerActionText: "text-white/40 font-medium",
               footerActionLink: "text-primary hover:text-primary/80 font-black",
-              identityPreviewText: "text-white",
-              identityPreviewEditButtonIcon: "text-primary",
             }
           }}
-          signUpUrl="/signup"
+          signInUrl="/signin"
         />
         
         <p className="mt-8 text-center text-xs font-bold text-white/10 uppercase tracking-widest">
