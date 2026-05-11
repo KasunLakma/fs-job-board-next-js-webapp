@@ -1,20 +1,25 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET() {
-  const user = await currentUser();
-
-  if (!user) {
-    redirect("/sign-in");
-  }
-
-  const email = user.emailAddresses[0].emailAddress;
-  const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
-
+export async function GET(request: Request) {
+  const { origin } = new URL(request.url);
+  
   try {
+    const user = await currentUser();
+
+    if (!user) {
+      console.log("[Sync] No user found, redirecting to sign-in");
+      return NextResponse.redirect(`${origin}/sign-in`);
+    }
+
+    const email = user.emailAddresses[0].emailAddress;
+    const name = `${user.firstName || ""} ${user.lastName || ""}`.trim();
+
+    console.log(`[Sync] Syncing user: ${email} (${user.id})`);
+
     // Upsert the user into our Prisma database
-    await prisma.user.upsert({
+    const dbUser = await prisma.user.upsert({
       where: { clerkId: user.id },
       update: {
         email,
@@ -27,12 +32,14 @@ export async function GET() {
         role: "USER", // Default role
       },
     });
+
+    console.log(`[Sync] User ${dbUser.email} synced successfully with role ${dbUser.role}`);
   } catch (error) {
-    console.error("Error syncing user with database:", error);
-    // Even if sync fails, we might want to redirect to home with an error, 
-    // or show an error page. For now, redirect home.
+    console.error("[Sync] Critical error during synchronization:", error);
   }
 
-  // Redirect back to home page after sync
-  redirect("/");
+  // Final fallback redirect to home page
+  // We place this at the very end to ensure the browser moves even if logic above fails
+  console.log("[Sync] Redirecting to home page");
+  return NextResponse.redirect(`${origin}/`);
 }
