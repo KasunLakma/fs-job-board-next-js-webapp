@@ -17,7 +17,7 @@ export async function POST(
 ) {
   try {
     const { id: jobIdOrSlug } = await params;
-    
+
     // Check if job exists - jobIdOrSlug from URL is actually the slug
     const job = await prisma.job.findUnique({
       where: { slug: jobIdOrSlug },
@@ -31,7 +31,7 @@ export async function POST(
     }
 
     const formData = await request.formData();
-    
+
     // Extract data from formData with explicit typing and fallbacks
     const data = {
       name: formData.get("name")?.toString() || "",
@@ -44,12 +44,12 @@ export async function POST(
 
     // Validate data using safeParse
     const validation = applicationSchema.safeParse(data);
-    
+
     // Robustly handle validation failure
     if (!validation.success) {
       // Use flatten() to get a cleaner error structure as requested
       const flattenedErrors = validation.error.flatten();
-      
+
       // Create a readable error message from field errors
       const fieldErrors = flattenedErrors.fieldErrors;
       const errorMessages = Object.entries(fieldErrors)
@@ -57,8 +57,8 @@ export async function POST(
         .join("; ");
 
       return NextResponse.json(
-        { 
-          error: "Validation failed", 
+        {
+          error: "Validation failed",
           details: fieldErrors,
           message: errorMessages
         },
@@ -96,9 +96,9 @@ export async function POST(
     });
 
     return NextResponse.json(
-      { 
+      {
         message: "Application submitted successfully.",
-        applicationId: application.id 
+        applicationId: application.id
       },
       { status: 201 }
     );

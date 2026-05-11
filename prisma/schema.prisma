@@ -51,5 +51,6 @@ model Application {
   coverLetter  String?
   jobId        String
   job          Job      @relation(fields: [jobId], references: [id])
+  status       String   @default("Pending") // Pending, In-Review, Accepted, Rejected
   createdAt    DateTime @default(now())
 }

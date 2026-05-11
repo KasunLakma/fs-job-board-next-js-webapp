@@ -29,7 +29,7 @@ export default async function RecruiterDashboard() {
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/30 transition-theme">
       <DashboardNav />
       
-      <main className="container mx-auto px-4 py-8 md:px-6 md:py-12">
+      <main className="container mx-auto px-4 pt-28 pb-8 md:px-6 md:pt-32 md:pb-12">
         {/* Welcome Section */}
         <div className="mb-12 relative">
           <div className="absolute -left-20 -top-20 h-64 w-64 rounded-full bg-primary/10 blur-[120px]"></div>
