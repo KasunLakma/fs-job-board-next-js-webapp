@@ -3,6 +3,21 @@ import DashboardNav from "../../../components/DashboardNav";
 import ApplicationsTable from "../../../components/ApplicationsTable";
 import Link from "next/link";
 import { Briefcase } from "lucide-react";
+import { Application, Prisma } from "@prisma/client";
+
+// Define specific types for the data we're fetching
+type ApplicationWithJob = Application & {
+  job: {
+    title: string;
+  };
+};
+
+interface ApplicationStat {
+  status: string;
+  _count: {
+    id: number;
+  };
+}
 
 export const metadata = {
   title: "Manage Applications | CCA Job Board",
@@ -24,7 +39,7 @@ export default async function ManageApplicationsPage({ searchParams }: PageProps
   const order = (params.order as "asc" | "desc") || "desc";
 
   // Build Prisma filter
-  const where: any = {};
+  const where: Prisma.ApplicationWhereInput = {};
   if (search) {
     where.OR = [
       { name: { contains: search, mode: 'insensitive' } },
@@ -41,9 +56,9 @@ export default async function ManageApplicationsPage({ searchParams }: PageProps
   }
 
   // Fetch data in parallel with error handling
-  let applications = [];
-  let totalFilteredApplications = 0;
-  let stats: any[] = [];
+  let applications: ApplicationWithJob[] = [];
+  let totalFilteredApplications: number = 0;
+  let stats: ApplicationStat[] = [];
   let error: string | null = null;
 
   try {
@@ -73,9 +88,9 @@ export default async function ManageApplicationsPage({ searchParams }: PageProps
       })
     ]);
     
-    applications = results[0];
-    totalFilteredApplications = results[1];
-    stats = results[2];
+    applications = results[0] as ApplicationWithJob[];
+    totalFilteredApplications = results[1] as number;
+    stats = results[2] as ApplicationStat[];
   } catch (err) {
     console.error("Database connection error in ManageApplicationsPage:", err);
     error = "Could not reach the database. Please check your connection and try again.";
