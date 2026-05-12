@@ -1,8 +1,11 @@
 import Link from "next/link";
 import Image from "next/image";
-import { UserButton, SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignInButton } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 
-export default function Header() {
+export default async function Header() {
+  const { userId } = await auth();
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
@@ -20,17 +23,15 @@ export default function Header() {
             For Employers
           </Link>
           
-          <SignedOut>
+          {userId ? (
+            <UserButton afterSignOutUrl="/" />
+          ) : (
             <SignInButton mode="modal">
               <button className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary">
                 Sign In
               </button>
             </SignInButton>
-          </SignedOut>
-          
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
+          )}
         </div>
       </div>
     </header>
