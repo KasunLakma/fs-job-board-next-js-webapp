@@ -15,15 +15,12 @@ export default async function AdminDashboardPage() {
     redirect("/sign-in");
   }
 
-  /* Temporarily disable admin role check for testing
-  const dbUser = await prisma.user.findUnique({
-    where: { clerkId: user.id },
-  });
-
-  if (!dbUser || dbUser.role !== "ADMIN") {
+  // Admin role check using Clerk metadata
+  const role = user.publicMetadata?.role as string;
+  if (role !== "admin" && role !== "ADMIN") {
+    console.log(`User ${user.id} attempted to access admin page without admin role. Role: ${role}`);
     redirect("/");
   }
-  */
 
   // Fetch real-time data from the database
   let userCount = 0;

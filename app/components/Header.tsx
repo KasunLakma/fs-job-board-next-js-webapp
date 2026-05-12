@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 
 export default function Header() {
   return (
@@ -18,12 +19,18 @@ export default function Header() {
           <Link href="/employers" className="hidden text-sm font-medium text-foreground hover:text-primary transition-colors md:block">
             For Employers
           </Link>
-          <Link
-            href="/sign-in"
-            className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-          >
-            Sign In
-          </Link>
+          
+          <SignedOut>
+            <SignInButton mode="modal" fallbackRedirectUrl="/">
+              <button className="inline-flex h-9 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary">
+                Sign In
+              </button>
+            </SignInButton>
+          </SignedOut>
+          
+          <SignedIn>
+            <UserButton signOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
     </header>
