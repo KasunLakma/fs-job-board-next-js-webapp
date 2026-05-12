@@ -12,10 +12,10 @@ export default function Home() {
       <section className="w-full bg-secondary/30 py-20 md:py-32 flex flex-col items-center">
         <div className="container mx-auto px-4 md:px-6 grid gap-8 md:grid-cols-2 items-center">
           <div className="flex flex-col gap-6">
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white">
               Launch Your <span className="text-primary">Software Engineering</span> Career
             </h1>
-            <p className="text-lg text-foreground/80 max-w-lg">
+            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-lg">
               Find internships, entry-level roles, and connect with top tech companies looking for students like you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
@@ -33,7 +33,7 @@ export default function Home() {
                 Search Jobs
               </button>
             </div>
-            <div className="flex gap-2 text-sm text-foreground/70 mt-2">
+            <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
               <span>Popular:</span>
               <Link href="/jobs?q=frontend" className="hover:text-primary underline">Frontend</Link>
               <Link href="/jobs?q=backend" className="hover:text-primary underline">Backend</Link>
@@ -55,7 +55,7 @@ export default function Home() {
       {/* Featured Categories */}
       <section className="w-full py-20 bg-background">
         <div className="container mx-auto px-4 md:px-6 flex flex-col items-center">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">Explore Opportunities</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-slate-900 dark:text-white">Explore Opportunities</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
             {[
               { title: "Frontend Developer", jobs: "320+ Jobs", icon: "💻" },
@@ -66,10 +66,10 @@ export default function Home() {
               <Link
                 key={index}
                 href={`/jobs?category=${category.title.toLowerCase().replace(" ", "-")}`}
-                className="group flex flex-col items-center p-8 rounded-xl border border-border bg-card hover:border-primary hover:shadow-lg transition-all "
+                className="group flex flex-col items-center p-8 rounded-xl bg-white dark:bg-slate-900 border dark:border-slate-800 hover:border-primary hover:shadow-lg transition-all "
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{category.icon}</div>
-                <h3 className="font-semibold text-lg text-foreground">{category.title}</h3>
+                <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">{category.title}</h3>
                 <p className="text-primary font-medium mt-2">{category.jobs}</p>
               </Link>
             ))}
@@ -85,8 +85,8 @@ export default function Home() {
       {/* Call to Action */}
       <section className="w-full bg-primary text-primary-foreground py-16 md:py-24">
         <div className="container mx-auto px-4 md:px-6 text-center flex flex-col items-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">Ready to start your journey?</h2>
-          <p className="text-primary-foreground/80 max-w-2xl mb-8 text-lg">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 text-slate-900 dark:text-white">Ready to start your journey?</h2>
+          <p className="text-primary-foreground/70 dark:text-gray-400 max-w-2xl mb-8 text-lg">
             Create a profile today, upload your resume, and let top tech companies find you. It is completely free for students.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">

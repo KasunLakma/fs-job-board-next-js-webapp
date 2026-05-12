@@ -8,7 +8,7 @@ interface JobCardProps {
 export default function JobCard({ job }: JobCardProps) {
  return (
  <Link href={`/jobs/${job.id}`} className="group block h-full">
- <div className="flex h-full flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:border-primary/50 hover:shadow-md ">
+ <div className="flex h-full flex-col justify-between rounded-xl bg-white dark:bg-slate-900 border dark:border-slate-800 p-6 shadow-sm transition-all hover:border-primary/50 hover:shadow-md ">
  <div>
  <div className="mb-4 flex items-start justify-between">
  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-secondary text-secondary-foreground font-bold text-xl">
@@ -18,10 +18,10 @@ export default function JobCard({ job }: JobCardProps) {
  {job.type}
  </span>
  </div>
- <h3 className="mb-1 text-lg font-bold text-foreground group-hover:text-primary transition-colors">
+ <h3 className="mb-1 text-lg font-bold text-gray-900 dark:text-gray-100 group-hover:text-primary transition-colors">
  {job.title}
  </h3>
- <p className="mb-4 text-sm font-medium text-foreground/70 ">
+ <p className="mb-4 text-sm font-medium text-gray-600 dark:text-gray-400 ">
  {job.company} &bull; {job.location}
  </p>
  </div>
@@ -30,7 +30,7 @@ export default function JobCard({ job }: JobCardProps) {
  <span className="text-sm font-semibold text-foreground">
  {job.salary}
  </span>
- <span className="text-xs text-foreground/50 ">
+ <span className="text-xs text-gray-600 dark:text-gray-400 ">
  {job.postedAt}
  </span>
  </div>
