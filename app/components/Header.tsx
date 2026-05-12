@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function Header() {
  return (
- <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-background/80 backdrop-blur-md">
+ <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-md">
  <div className="container mx-auto flex h-20 items-center justify-between px-4 md:px-6">
  <Link href="/" className="flex items-center gap-4">
  <Image src="/logo.png.jpg" alt="CCA Job Board" width={200} height={80} className="h-14 w-auto object-contain" priority />

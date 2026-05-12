@@ -15,25 +15,25 @@ export default function Home() {
             <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-foreground">
               Launch Your <span className="text-primary">Software Engineering</span> Career
             </h1>
-            <p className="text-lg text-gray-900 max-w-lg">
+            <p className="text-lg text-foreground/80 max-w-lg">
               Find internships, entry-level roles, and connect with top tech companies looking for students like you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mt-4">
               <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-900">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-foreground/50">
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                 </div>
                 <input
                   type="text"
-                  placeholder="Job title, keywords, or company"
-                  className="w-full pl-10 pr-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent "
+                  placeholder="Search for Job Title"
+                  className="w-full pl-10 pr-4 py-3 rounded-md border border-border bg-background text-foreground placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent "
                 />
               </div>
               <button className="bg-primary text-primary-foreground font-semibold px-8 py-3 rounded-md hover:bg-primary/90 transition-colors shadow-md">
                 Search Jobs
               </button>
             </div>
-            <div className="flex gap-2 text-sm text-gray-900 mt-2">
+            <div className="flex gap-2 text-sm text-foreground/70 mt-2">
               <span>Popular:</span>
               <Link href="/jobs?q=frontend" className="hover:text-primary underline">Frontend</Link>
               <Link href="/jobs?q=backend" className="hover:text-primary underline">Backend</Link>
@@ -55,7 +55,7 @@ export default function Home() {
       {/* Featured Categories */}
       <section className="w-full py-20 bg-background">
         <div className="container mx-auto px-4 md:px-6 flex flex-col items-center">
-          <h2 className="text-3xl font-bold text-center mb-12 text-foreground">Explore Opportunities</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-gray-100">Explore Opportunities</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
             {[
               { title: "Frontend Developer", jobs: "320+ Jobs", icon: "💻" },
@@ -66,7 +66,7 @@ export default function Home() {
               <Link
                 key={index}
                 href={`/jobs?category=${category.title.toLowerCase().replace(" ", "-")}`}
-                className="group flex flex-col items-center p-8 rounded-xl border border-gray-200 bg-white hover:border-primary hover:shadow-lg transition-all "
+                className="group flex flex-col items-center p-8 rounded-xl border border-border bg-card hover:border-primary hover:shadow-lg transition-all "
               >
                 <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">{category.icon}</div>
                 <h3 className="font-semibold text-lg text-foreground">{category.title}</h3>
