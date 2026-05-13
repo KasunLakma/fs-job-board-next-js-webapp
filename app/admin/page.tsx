@@ -22,6 +22,28 @@ export default async function AdminDashboardPage() {
     redirect("/");
   }
 
+  // Sync current user to DB if they don't exist to ensure real data exists
+  if (user) {
+    try {
+      await prisma.user.upsert({
+        where: { clerkId: user.id },
+        update: {
+          email: user.emailAddresses[0].emailAddress,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
+          role: (user.publicMetadata?.role as string)?.toUpperCase() === "ADMIN" ? "ADMIN" : "USER",
+        },
+        create: {
+          clerkId: user.id,
+          email: user.emailAddresses[0].emailAddress,
+          name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
+          role: (user.publicMetadata?.role as string)?.toUpperCase() === "ADMIN" ? "ADMIN" : "USER",
+        },
+      });
+    } catch (err) {
+      console.error("Failed to sync user to database:", err);
+    }
+  }
+
   // Fetch real-time data from the database
   let userCount = 0;
   let jobCount = 0;
@@ -46,15 +68,15 @@ export default async function AdminDashboardPage() {
     // Combine users and jobs into a single activity list
     const userActivities = uList.slice(0, 5).map((u) => ({
       id: u.id,
-      type: "USER_SIGNUP",
-      description: `New User: ${u.name || u.email.split('@')[0]}`,
+      type: "New User Registered",
+      description: `${u.name || u.email.split('@')[0]} joined the platform`,
       date: u.createdAt,
     }));
 
     const jobActivities = jList.slice(0, 5).map((j) => ({
       id: j.id,
-      type: "JOB_POST",
-      description: `New Job: ${j.title}`,
+      type: "New Job Posted",
+      description: `"${j.title}" was posted by ${j.company}`,
       date: j.createdAt,
     }));
 
