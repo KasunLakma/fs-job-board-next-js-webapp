@@ -308,9 +308,13 @@ export default function AdminDashboardClient({
                             <button 
                               onClick={() => handleRoleToggle(user.id, user.role)}
                               disabled={isUpdating}
-                              className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-white transition-colors bg-primary/10 px-4 py-2 rounded-xl border border-primary/20 disabled:opacity-50"
+                              className={`text-[10px] font-black uppercase tracking-widest px-4 py-2 rounded-xl border transition-all disabled:opacity-50 ${
+                                user.role === 'ADMIN'
+                                  ? 'text-rose-500 hover:bg-rose-500 hover:text-white border-rose-500/20 bg-rose-500/5'
+                                  : 'text-primary hover:bg-primary hover:text-white border-primary/20 bg-primary/10'
+                              }`}
                             >
-                              Toggle Role
+                              {user.role === 'ADMIN' ? 'Remove Admin' : 'Make Admin'}
                             </button>
                           </td>
                         </tr>
