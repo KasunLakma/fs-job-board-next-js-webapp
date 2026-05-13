@@ -27,6 +27,7 @@ export default async function AdminDashboardPage() {
   let jobCount = 0;
   let users: any[] = [];
   let jobs: any[] = [];
+  let recentActivities: any[] = [];
   let error = null;
 
   try {
@@ -41,6 +42,26 @@ export default async function AdminDashboardPage() {
     jobCount = jCount;
     users = uList;
     jobs = jList;
+
+    // Combine users and jobs into a single activity list
+    const userActivities = uList.slice(0, 5).map((u) => ({
+      id: u.id,
+      type: "USER_SIGNUP",
+      description: `New User: ${u.name || u.email.split('@')[0]}`,
+      date: u.createdAt,
+    }));
+
+    const jobActivities = jList.slice(0, 5).map((j) => ({
+      id: j.id,
+      type: "JOB_POST",
+      description: `New Job: ${j.title}`,
+      date: j.createdAt,
+    }));
+
+    recentActivities = [...userActivities, ...jobActivities]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, 5);
+
   } catch (err) {
     console.error("Failed to fetch admin stats:", err);
     error = "Database connection error. Please ensure migrations are applied (npx prisma db push).";
@@ -52,6 +73,7 @@ export default async function AdminDashboardPage() {
       jobCount={jobCount}
       initialUsers={users}
       initialJobs={jobs}
+      recentActivities={recentActivities}
       error={error}
     />
   );

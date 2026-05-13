@@ -14,6 +14,7 @@ interface AdminDashboardClientProps {
   jobCount: number;
   initialUsers: any[];
   initialJobs: any[];
+  recentActivities: any[];
   error: string | null;
 }
 
@@ -22,6 +23,7 @@ export default function AdminDashboardClient({
   jobCount, 
   initialUsers, 
   initialJobs,
+  recentActivities,
   error: initialError
 }: AdminDashboardClientProps) {
   const router = useRouter();
@@ -74,6 +76,17 @@ export default function AdminDashboardClient({
     } finally {
       setIsUpdating(false);
     }
+  };
+
+  const formatTimeAgo = (date: Date | string) => {
+    const now = new Date();
+    const then = new Date(date);
+    const diffInSeconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (diffInSeconds < 60) return "Just Now";
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    return then.toLocaleDateString();
   };
 
   return (
@@ -209,14 +222,28 @@ export default function AdminDashboardClient({
                   Recent Activity
                 </h3>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
-                    <span className="text-sm text-white/60">New User Registration</span>
-                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">Just Now</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5">
-                    <span className="text-sm text-white/60">Job Posting Approved</span>
-                    <span className="text-[10px] font-black text-white/20 uppercase tracking-widest">2h ago</span>
-                  </div>
+                  {recentActivities.length > 0 ? (
+                    recentActivities.map((activity) => (
+                      <div key={`${activity.type}-${activity.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 group hover:bg-white/10 transition-all border border-white/5">
+                        <div className="flex flex-col">
+                          <span className="text-sm font-bold text-white/80 group-hover:text-primary transition-colors">
+                            {activity.description}
+                          </span>
+                          <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest mt-0.5">
+                            {activity.type.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-black text-white/20 uppercase tracking-widest bg-white/5 px-2 py-1 rounded-md">
+                          {formatTimeAgo(activity.date)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                      <Activity size={32} className="text-white/10 mb-3" />
+                      <p className="text-sm text-white/40 font-medium">No recent activity detected.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
